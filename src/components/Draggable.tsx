@@ -113,6 +113,51 @@ export class Draggable {
     }
 }
 
+interface DockStyleCSS {
+    position: 'static' | 'absolute' | 'relative';
+    top: 'auto' | number;
+    left: 'auto' | number;
+    bottom: 'auto' | number;
+    right: 'auto' | number;
+    width: 'auto' | number;
+    height: 'auto' | number;
+}
+
+enum DockStyle {
+    Center,
+    Left,
+    Right,
+    Top,
+    Bottom,
+    None
+}
+
+class Dockable {
+
+    dockStyle: DockStyle = DockStyle.Center;
+    dockStyleCSS: DockStyleCSS = {} as DockStyleCSS;
+
+    constructor() {
+        this._setDefaultCSS();
+    }
+
+    public setDockStyle(dockStyle: DockStyle) {
+        this.dockStyle = dockStyle;
+    }
+
+    private _setDefaultCSS() {
+        this.dockStyleCSS = {
+            position: 'static',
+            top: 'auto',
+            right: 'auto',
+            bottom: 'auto',
+            left: 'auto',
+            width: 'auto',
+            height: 'auto',
+        }
+    }
+}
+
 export class Droppable {
 
 
@@ -142,3 +187,32 @@ export class Droppable {
     }
 
 }
+
+
+class DockManager {
+    layout: Layout = new Layout();
+}
+
+class DockPanel {
+    forms: DockForm[] = [];
+}
+
+class DockForm {
+
+}
+
+
+enum LayoutDirection {
+    Horizontal,
+    Vertical
+}
+
+class Layout {
+    SplitLayoutDirection = LayoutDirection.Horizontal;
+    size: number = 200;
+    primary: Layout | DockPanel = new DockPanel();
+    secondary: Layout | DockPanel | null = null;
+}
+
+const dockManager = new DockManager();
+const primary = dockManager.layout.primary;
