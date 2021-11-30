@@ -1,5 +1,6 @@
 import { Content, MenuBar, MenuItem, ToolBar, ToolBarLayout, ToolBars, ToolButton } from "./MainForm.styles"
 import SaveIcon from '@mui/icons-material/Save';
+import DockManager from "../components/DockManager/DockManager";
 
 
 
@@ -43,7 +44,8 @@ const MainForm = () => {
                 </ToolBar>
             </ToolBars>
             <Content>
-                {getContentControls()};
+                {/* {getContentControls()}; */}
+                <DockManager />
             </Content>
         </ToolBarLayout>
     )

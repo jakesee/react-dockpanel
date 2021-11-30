@@ -40,6 +40,8 @@ export const ToolBars = styled.div`
 
 export const Content = styled.div`
     background-color: var(--backgroundColor);
+
+    position: relative;
 `;
 
 export const ToolBarLayout = styled.div`
