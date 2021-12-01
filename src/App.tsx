@@ -1,5 +1,4 @@
-import DockManager from "./components/DockManager/DockManager";
-import MainForm from "./forms/MainForm";
+import MainForm from "./forms/MainForm/MainForm";
 import { GlobalStyle } from "./GlobalStyle";
 
 function App() {

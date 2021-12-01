@@ -1,26 +1,16 @@
-import { ReactNode } from "react";
+import styled from 'styled-components';
+import { CDockForm } from '../behavior';
 
-
-export class CDockForm {
-
-    constructor(public title: string, public children?: ReactNode, public icon?: ReactNode) {
-
-    }
-
-    public static Empty() {
-        const form = new CDockForm('Empty Form');
-        form.children = 'No Contents'
-        form.icon = '';
-
-        return form;
-    }
-}
+const Wrapper = styled.div`
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+`;
 
 const DockForm = ({ children, title, icon }: CDockForm) => {
     return (
-        <div>
+        <Wrapper>
             {children}
-        </div>
+        </Wrapper>
     )
 }
 

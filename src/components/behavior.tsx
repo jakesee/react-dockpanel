@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export class Point {
     constructor(public x: number, public y: number) {
 
@@ -100,52 +102,147 @@ export class Movable {
 }
 
 
-export class Draggable {
+export class DragDropable {
 
-    constructor(public getHTMLDivElement: () => HTMLDivElement | null) {
-
-    }
-
-    public onDragStart(e: DragEvent, data?: (e: DragEvent) => string) {
-
-        const draggedItem = this.getHTMLDivElement()
-        if (draggedItem && e.dataTransfer) {
-            const rect = draggedItem.getBoundingClientRect();
-            const offset = Point.delta({ x: e.clientX, y: e.clientY }, { x: rect.x, y: rect.y });
-            e.dataTransfer.setDragImage(draggedItem, offset.x, offset.y);
-
-            const customClass = Date.now().toString();
-            e.dataTransfer.setData('dragdrop-content', customClass);
-            e.dataTransfer.setData('custom-data', data ? data(e) : '');
-            draggedItem.classList.add(customClass);
-        }
-    }
-}
-
-export class Droppable {
-
-
-    constructor(public getHTMLDivElement: () => HTMLDivElement | null) {
-
+    public onDragStart(e: DragEvent, sourceData: string) {
+        e.dataTransfer?.setData('source-data', sourceData);
     }
 
     public onDragOver(e: DragEvent, canDrop: (e: DragEvent, data: string) => boolean) {
-        const data = e.dataTransfer?.getData('customer-data') ?? '';
+        const data = e.dataTransfer?.getData('source-data') ?? '';
         if (canDrop(e, data)) e.preventDefault();
     }
 
-    public onDrop(e: DragEvent) {
+    public onDrop(e: DragEvent, action: (sourceData: string) => void) {
+        const data = e.dataTransfer?.getData('source-data');
+        data && action && action(data);
+    }
+}
 
-        const dropTarget = this.getHTMLDivElement();
-        if (dropTarget) {
-            const className = e.dataTransfer?.getData('dragdrop-content') as string;
-            const element = document.getElementsByClassName(className).item(0);
-            if (element) {
-                element.classList.remove(className);
-                dropTarget.appendChild(element);
-            } else {
-            }
-        }
+export class CDockForm {
+    constructor(public id: string,
+        public title: string,
+        public children?: ReactNode,
+        public icon?: ReactNode) {
+    }
+}
+
+export enum DockLayoutDirection {
+    Horizontal,
+    Vertical
+}
+
+
+export enum DockLayoutItemType {
+    SPLITTER, PANEL
+}
+
+export class CDockLayoutItem {
+    constructor(public id: string, public type: DockLayoutItemType) { }
+}
+
+
+export class CDockSplitter extends CDockLayoutItem {
+    constructor(
+        public id: string,
+        public primary: CDockLayoutItem,
+        public secondary: CDockLayoutItem,
+        public direction: DockLayoutDirection = DockLayoutDirection.Horizontal,
+        public size: number = 200
+    ) {
+        super(id, DockLayoutItemType.SPLITTER);
+    }
+}
+
+export class CDockPanel extends CDockLayoutItem {
+    constructor(public id: string,
+        public forms: CDockForm[]) {
+        super(id, DockLayoutItemType.PANEL);
+    }
+}
+
+export class CDockManager {
+
+    public static createForm(title: string, children?: ReactNode, icon?: ReactNode) {
+        const form = new CDockForm(this._hash('dmf'), title, children, icon)
+        return form;
     }
 
+    public static createPanel(forms: CDockForm[]) {
+        const panel = new CDockPanel(this._hash('dmp'), forms);
+        return panel;
+    }
+
+    public static createSplitter(primary: CDockLayoutItem, secondary: CDockLayoutItem, direction: DockLayoutDirection = DockLayoutDirection.Horizontal, size: number = 200) {
+        const splitter = new CDockSplitter(this._hash('dms'), primary, secondary, direction, size);
+        return splitter;
+    }
+
+    private static _counter = 0;
+    private static _hash(prefix: string) {
+        return `${prefix}-${++CDockManager._counter}`;
+    }
+
+    public static moveForm(root: CDockLayoutItem, formId: string, panelId: string) {
+        const [form, source] = this._findForm(formId, root);
+        const [dest, splitter] = this._findPanel(panelId, root, null);
+
+        if (form && source && dest) {
+            // remove from source panel
+            const index = source.forms.findIndex(f => f.id === formId);
+            source.forms.splice(index, 1);
+
+            // add to destination panel
+            dest.forms.push(form);
+
+            console.log('OK', formId, panelId, form, source, dest);
+        } else console.log('!OK', formId, panelId, form, source, dest, root);
+
+        return root;
+    }
+
+    private static _findForm(formId: string, layoutItem: CDockLayoutItem): [CDockForm | null, CDockPanel | null] {
+        if (layoutItem.type === DockLayoutItemType.PANEL) {
+            const panel = (layoutItem as CDockPanel);
+            const form = panel.forms.find(f => f.id === formId)
+            if (form) return [form, panel];
+            else return [null, null];
+
+        } else if (layoutItem.type === DockLayoutItemType.SPLITTER) {
+            const splitter = (layoutItem as CDockSplitter)
+            const [form, panel] = this._findForm(formId, splitter.primary);
+            if (Boolean(form)) {
+                return [form, panel];
+            }
+            else {
+                const [form, panel] = this._findForm(formId, splitter.secondary);
+                if (Boolean(form)) {
+                    return [form, panel];
+                }
+            }
+        }
+
+        return [null, null];
+    }
+
+    private static _findPanel(panelId: string, layoutItem: CDockLayoutItem, parent: CDockSplitter | null): [CDockPanel | null, CDockSplitter | null] {
+        if (layoutItem.type === DockLayoutItemType.PANEL) {
+            const panel = layoutItem as CDockPanel;
+            if (panel.id === panelId) return [panel, parent];
+        } else if (layoutItem.type === DockLayoutItemType.SPLITTER) {
+            const parent = layoutItem as CDockSplitter;
+            const [panel, splitter] = this._findPanel(panelId, parent.primary, parent);
+            if (Boolean(panel)) {
+                return [panel, splitter];
+            }
+            else {
+                const [panel, splitter] = this._findPanel(panelId, parent.secondary, parent);
+                if (Boolean(panel)) {
+                    return [panel, splitter];
+                }
+            }
+        }
+
+        return [null, null];
+    }
 }

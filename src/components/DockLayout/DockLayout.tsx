@@ -1,51 +1,8 @@
 import DockPanel from "../DockPanel/DockPanel";
 import styled from 'styled-components';
-import { Movable } from "../behavior";
-import { useState } from "react";
-import { CDockForm } from "../DockForm/DockForm";
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable } from "../behavior";
+import { useEffect, useState } from "react";
 
-export enum DockLayoutDirection {
-    Horizontal,
-    Vertical
-}
-
-export class CDockLayout {
-    // panel
-    forms: CDockForm[] = [CDockForm.Empty()];
-
-    // splitter
-    direction: DockLayoutDirection = DockLayoutDirection.Horizontal;
-    size: number = 500;
-    primary: CDockLayout | null = null;
-    secondary: CDockLayout | null = null;
-
-    public static isSplitter(layout: CDockLayout) {
-        return !(layout.primary === null && layout.secondary === null);
-    }
-
-    public static CreatePanel(forms: CDockForm[]) {
-        const panel = new CDockLayout();
-        panel.forms = forms;
-        panel.direction = DockLayoutDirection.Horizontal;
-        panel.size = 500;
-        panel.primary = null;
-        panel.secondary = null;
-
-        return panel;
-    }
-
-    public static CreateSplitter(primary: CDockLayout, secondary: CDockLayout) {
-        const splitter = new CDockLayout();
-        splitter.forms = []; // no forms
-
-        splitter.direction = DockLayoutDirection.Horizontal;
-        splitter.size = 500;
-        splitter.primary = primary;
-        splitter.secondary = secondary;
-
-        return splitter;
-    }
-}
 
 const Wrapper = styled.div<{ direction: DockLayoutDirection }>`
     display: flex;
@@ -75,15 +32,22 @@ const Secondary = styled.div<{ size: number }>`
     background-color: var(--systemColor);
 `
 
-const DockLayout = (layout: CDockLayout) => {
+const DockLayout = ({ layout, onLayout }: { layout: CDockLayoutItem, onLayout: (sourceId: string, destinationId: string) => void }) => {
 
-    const [secondarySize, setSecondarySize] = useState(layout.size);
+    const isSplitter = layout.type === DockLayoutItemType.SPLITTER;
+    const splitter = layout as CDockSplitter;
+    const panel = layout as CDockPanel;
+
+    const [secondarySize, setSecondarySize] = useState<number>(splitter.size ?? 200);
 
     const movable = new Movable((delta) => {
-        if (layout.direction === DockLayoutDirection.Horizontal) {
-            setSecondarySize(prev => prev - delta.x);
-        } else {
-            setSecondarySize(prev => prev - delta.y);
+        if (isSplitter)
+        {
+            if (splitter.direction === DockLayoutDirection.Horizontal) {
+                setSecondarySize(prev => prev - delta.x);
+            } else {
+                setSecondarySize(prev => prev - delta.y);
+            }
         }
     });
 
@@ -91,27 +55,27 @@ const DockLayout = (layout: CDockLayout) => {
     const renderSplitter = () => (
         <>
             <Primary className="dock-layout-primary">
-                <DockLayout {...(layout.primary!)} />
+                <DockLayout layout={splitter.primary} onLayout={onLayout} />
             </Primary>
-            <Separator className="separator" direction={layout.direction}
+            <Separator className="separator" direction={splitter.direction}
                 onMouseDown={(e) => movable.onMouseDown(e.nativeEvent)}
                 onTouchStart={(e) => movable.onTouchStart(e.nativeEvent)}
             />
             <Secondary size={secondarySize} className="dock-layout-secondary">
-                <DockLayout {...(layout.secondary!)} />
+                <DockLayout layout={splitter.secondary} onLayout={onLayout}/>
             </Secondary>
         </>
     );
 
     const renderPanel = () => (
         <Primary className="dock-layout-primary">
-            <DockPanel forms={layout.forms} />
+            <DockPanel panel={panel} onLayout={onLayout}/>
         </Primary>
     )
 
     return (
-        <Wrapper direction={layout.direction}>
-            {CDockLayout.isSplitter(layout) ? renderSplitter() : renderPanel()}
+        <Wrapper direction={splitter?.direction} className={layout.id}>
+            {isSplitter ? renderSplitter() : renderPanel()}
         </Wrapper>
     );
 }
