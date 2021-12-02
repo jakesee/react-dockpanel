@@ -1,8 +1,8 @@
 import { Content, MenuBar, MenuItem, ToolBar, ToolBarLayout, ToolBars, ToolButton } from "./MainForm.styles"
 import SaveIcon from '@mui/icons-material/Save';
 import SampleForm from "../SampleForm/SampleForm";
-import { CDockLayoutItem, CDockManager, CDockSplitter, DockLayoutDirection } from "../../components/behavior";
-import DockManager from "../../components/DockManager/DockManager";
+import { CDockForm, CDockLayoutItem, CDockManager, CDockSplitter, DockLayoutDirection } from "../../components/behavior";
+import DockManager from "../../components/DockManager";
 import { useEffect, useState } from "react";
 
 const MainForm = () => {
@@ -10,7 +10,7 @@ const MainForm = () => {
     const [layout, setLayout] = useState<CDockLayoutItem>(CDockManager.createPanel([]));
 
     useEffect(() => {
-        const properties = CDockManager.createForm('Properties', <SampleForm />);
+        const properties = CDockManager.createForm('Properties');
         const classView = CDockManager.createForm('Class View');
         const error = CDockManager.createForm('Error List');
         const debug = CDockManager.createForm('Debug');
@@ -25,7 +25,7 @@ const MainForm = () => {
 
         setLayout(splitter2);
 
-        console.log('init', splitter2);
+        console.log(JSON.stringify(splitter2));
 
     }, []);
 
@@ -39,6 +39,18 @@ const MainForm = () => {
             const panel = CDockManager.createPanel([]);
             return CDockManager.createSplitter(prev, panel, DockLayoutDirection.Horizontal, 300);
         })
+    }
+
+    const onRenderForm = (form: CDockForm) => {
+
+        switch (form.title) {
+            case 'Properties':
+                return <SampleForm />;
+            default:
+                return (
+                <div>Unknown</div>
+            )
+        }
     }
 
     return (
@@ -68,7 +80,7 @@ const MainForm = () => {
                 </ToolBar>
             </ToolBars>
             <Content>
-                <DockManager onLayout={handleLayoutChange} layout={layout} />
+                <DockManager onLayout={handleLayoutChange} layout={layout} onRenderForm={onRenderForm}/>
             </Content>
         </ToolBarLayout>
     )

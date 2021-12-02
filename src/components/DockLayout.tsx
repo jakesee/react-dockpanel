@@ -1,7 +1,7 @@
-import DockPanel from "../DockPanel/DockPanel";
+import DockPanel from "./DockPanel";
 import styled from 'styled-components';
-import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable } from "../behavior";
-import { useEffect, useState } from "react";
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable, CDockForm } from "./behavior";
+import { ReactNode, useState } from "react";
 
 
 const Wrapper = styled.div<{ direction: DockLayoutDirection }>`
@@ -32,9 +32,10 @@ const Secondary = styled.div<{ size: number }>`
     background-color: var(--systemColor);
 `
 
-const DockLayout = ({ layout, onLayout }: { layout: CDockLayoutItem, onLayout: (sourceId: string, destinationId: string) => void }) => {
+const DockLayout = ({ layout, onLayout, onRenderForm }
+    : { layout: CDockLayoutItem, onLayout: (sourceId: string, destinationId: string) => void, onRenderForm: (form: CDockForm) => ReactNode }) => {
 
-    const isSplitter = layout.type === DockLayoutItemType.SPLITTER;
+    const isSplitter = layout.type === DockLayoutItemType.Splitter;
     const splitter = layout as CDockSplitter;
     const panel = layout as CDockPanel;
 
@@ -55,21 +56,21 @@ const DockLayout = ({ layout, onLayout }: { layout: CDockLayoutItem, onLayout: (
     const renderSplitter = () => (
         <>
             <Primary className="dock-layout-primary">
-                <DockLayout layout={splitter.primary} onLayout={onLayout} />
+                <DockLayout layout={splitter.primary} onLayout={onLayout} onRenderForm={onRenderForm} />
             </Primary>
             <Separator className="separator" direction={splitter.direction}
                 onMouseDown={(e) => movable.onMouseDown(e.nativeEvent)}
                 onTouchStart={(e) => movable.onTouchStart(e.nativeEvent)}
             />
             <Secondary size={secondarySize} className="dock-layout-secondary">
-                <DockLayout layout={splitter.secondary} onLayout={onLayout}/>
+                <DockLayout layout={splitter.secondary} onLayout={onLayout} onRenderForm={onRenderForm} />
             </Secondary>
         </>
     );
 
     const renderPanel = () => (
         <Primary className="dock-layout-primary">
-            <DockPanel panel={panel} onLayout={onLayout}/>
+            <DockPanel panel={panel} onLayout={onLayout} onRenderForm={onRenderForm} />
         </Primary>
     )
 

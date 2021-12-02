@@ -1,7 +1,7 @@
-import { useState } from "react";
-import DockForm from "../DockForm/DockForm";
+import { ReactNode, useState } from "react";
+import DockForm from "./DockForm";
 import styled from 'styled-components';
-import { CDockPanel, DragDropable } from "../behavior";
+import { CDockForm, CDockPanel, DragDropable } from "./behavior";
 
 
 const NoContent = styled.div`
@@ -61,7 +61,8 @@ export const Tabs = styled.div`
     }
 `
 
-const DockPanel = ({ panel, onLayout }: { panel: CDockPanel, onLayout: (sourceId:string, destinationId: string) => void}) => {
+const DockPanel = ({ panel, onLayout, onRenderForm }
+    : { panel: CDockPanel, onLayout: (sourceId: string, destinationId: string) => void, onRenderForm: (form: CDockForm) => ReactNode }) => {
 
     const [activeForm, setActiveForm] = useState(0);
 
@@ -85,7 +86,7 @@ const DockPanel = ({ panel, onLayout }: { panel: CDockPanel, onLayout: (sourceId
                     onClick={() => setActiveForm(i)}
 
                     draggable
-                    onDragStart={(e) => dragDrop.onDragStart(e.nativeEvent, panel.forms[getActiveForm()].id)}
+                    onDragStart={(e) => dragDrop.onDragStart(e.nativeEvent, f.id)}
                 >{f.title}</div>
             ))}
         </Tabs>
@@ -101,7 +102,7 @@ const DockPanel = ({ panel, onLayout }: { panel: CDockPanel, onLayout: (sourceId
                 onDragStart={(e) => dragDrop.onDragStart(e.nativeEvent, panel.forms[getActiveForm()].id)}
             >{panel.forms[getActiveForm()].title} {panel.forms[getActiveForm()].id}</Title>
             <Content className="content">
-                <DockForm {...panel.forms[activeForm]} />
+                <DockForm form={panel.forms[activeForm]} onRenderForm={onRenderForm} />
             </Content>
             {panel.forms.length > 1 ? renderTabs() : ''}
         </Wrapper>

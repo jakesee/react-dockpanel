@@ -134,7 +134,11 @@ export enum DockLayoutDirection {
 
 
 export enum DockLayoutItemType {
-    SPLITTER, PANEL
+    Splitter, Panel
+}
+
+enum DockLayoutSide {
+    Primary, Secondary
 }
 
 export class CDockLayoutItem {
@@ -150,18 +154,23 @@ export class CDockSplitter extends CDockLayoutItem {
         public direction: DockLayoutDirection = DockLayoutDirection.Horizontal,
         public size: number = 200
     ) {
-        super(id, DockLayoutItemType.SPLITTER);
+        super(id, DockLayoutItemType.Splitter);
     }
 }
 
 export class CDockPanel extends CDockLayoutItem {
     constructor(public id: string,
         public forms: CDockForm[]) {
-        super(id, DockLayoutItemType.PANEL);
+        super(id, DockLayoutItemType.Panel);
     }
 }
 
 export class CDockManager {
+
+    public static clone(layout: CDockLayoutItem) {
+        console.log(JSON.stringify(layout));
+        return JSON.parse('{}');
+    }
 
     public static createForm(title: string, children?: ReactNode, icon?: ReactNode) {
         const form = new CDockForm(this._hash('dmf'), title, children, icon)
@@ -185,30 +194,78 @@ export class CDockManager {
 
     public static moveForm(root: CDockLayoutItem, formId: string, panelId: string) {
         const [form, source] = this._findForm(formId, root);
-        const [dest, splitter] = this._findPanel(panelId, root, null);
+        const { found: destination } = this._findLayoutItem(panelId, root, null, null);
 
-        if (form && source && dest) {
+        if (form && source && destination) {
             // remove from source panel
             const index = source.forms.findIndex(f => f.id === formId);
             source.forms.splice(index, 1);
 
-            // add to destination panel
-            dest.forms.push(form);
+            // add form to destination panel
+            (destination as CDockPanel).forms.push(form);
 
-            console.log('OK', formId, panelId, form, source, dest);
-        } else console.log('!OK', formId, panelId, form, source, dest, root);
+            root = this._occupyFreeSpace(root, root);
+        }
 
         return root;
     }
 
+    private static _occupyFreeSpace(root: CDockLayoutItem, start: CDockLayoutItem) {
+
+        if (start.type === DockLayoutItemType.Splitter) {
+
+            const splitter = start as CDockSplitter;
+            if (splitter.primary.type === DockLayoutItemType.Splitter) {
+                this._occupyFreeSpace(root, splitter.primary);
+            }
+
+            if (splitter.secondary.type === DockLayoutItemType.Splitter) {
+                this._occupyFreeSpace(root, splitter.secondary);
+            }
+
+            if (splitter.primary.type === DockLayoutItemType.Panel) {
+
+                const panel1 = splitter.primary as CDockPanel;
+                if (panel1.forms.length === 0) {
+                    return this._replace(root, splitter, splitter.secondary as CDockPanel);
+                }
+            }
+
+            if (splitter.secondary.type === DockLayoutItemType.Panel) {
+                const panel2 = splitter.secondary as CDockPanel;
+                if (panel2.forms.length === 0) {
+                    return this._replace(root, splitter, splitter.primary as CDockPanel);
+                }
+
+            }
+        }
+
+        return root;
+    }
+
+    private static _replace(root: CDockLayoutItem, remove: CDockSplitter, replace: CDockPanel): CDockLayoutItem {
+        const { found, parent } = this._findLayoutItem(remove.id, root, null, null);
+        if (found && parent) {
+            if (found.id === parent.primary.id) {
+                parent.primary = replace;
+            } else if (found.id === parent.secondary.id) {
+                parent.secondary = replace;
+            }
+
+            return root;
+        } else {
+            return replace;
+        }
+    }
+
     private static _findForm(formId: string, layoutItem: CDockLayoutItem): [CDockForm | null, CDockPanel | null] {
-        if (layoutItem.type === DockLayoutItemType.PANEL) {
+        if (layoutItem.type === DockLayoutItemType.Panel) {
             const panel = (layoutItem as CDockPanel);
             const form = panel.forms.find(f => f.id === formId)
             if (form) return [form, panel];
             else return [null, null];
 
-        } else if (layoutItem.type === DockLayoutItemType.SPLITTER) {
+        } else if (layoutItem.type === DockLayoutItemType.Splitter) {
             const splitter = (layoutItem as CDockSplitter)
             const [form, panel] = this._findForm(formId, splitter.primary);
             if (Boolean(form)) {
@@ -225,24 +282,28 @@ export class CDockManager {
         return [null, null];
     }
 
-    private static _findPanel(panelId: string, layoutItem: CDockLayoutItem, parent: CDockSplitter | null): [CDockPanel | null, CDockSplitter | null] {
-        if (layoutItem.type === DockLayoutItemType.PANEL) {
-            const panel = layoutItem as CDockPanel;
-            if (panel.id === panelId) return [panel, parent];
-        } else if (layoutItem.type === DockLayoutItemType.SPLITTER) {
-            const parent = layoutItem as CDockSplitter;
-            const [panel, splitter] = this._findPanel(panelId, parent.primary, parent);
-            if (Boolean(panel)) {
-                return [panel, splitter];
+    private static _findLayoutItem(searchId: string, layoutItem: CDockLayoutItem, parent: CDockSplitter | null, side: DockLayoutSide | null)
+        : { found: CDockLayoutItem | null, parent: CDockSplitter | null, side: DockLayoutSide | null } {
+
+        if (searchId === layoutItem.id) {
+            // found!
+            return { found: layoutItem, parent, side }
+        }
+
+        else if (layoutItem.type === DockLayoutItemType.Splitter) {
+            const splitter = layoutItem as CDockSplitter;
+            const { found, parent, side } = this._findLayoutItem(searchId, splitter.primary, splitter, DockLayoutSide.Primary);
+            if (Boolean(found)) {
+                return { found, parent, side };
             }
             else {
-                const [panel, splitter] = this._findPanel(panelId, parent.secondary, parent);
-                if (Boolean(panel)) {
-                    return [panel, splitter];
+                const { found, parent, side } = this._findLayoutItem(searchId, splitter.secondary, splitter, DockLayoutSide.Secondary);
+                if (Boolean(found)) {
+                    return { found, parent, side };
                 }
             }
         }
 
-        return [null, null];
+        return { found: null, parent: null, side: null };
     }
 }

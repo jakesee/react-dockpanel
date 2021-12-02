@@ -5530,6 +5530,13 @@
   "resolved" "https://registry.npmjs.org/flatten/-/flatten-1.0.3.tgz"
   "version" "1.0.3"
 
+"flexlayout-react@^0.6.2":
+  "integrity" "sha512-BI6+22fb7jp+QSgEhtQzz3YZVVx9iy/Cec7UR5jRdSbNwqBcVlDzBGhg26KF+5vngsAD9BvJgV3lUN2yXohNSw=="
+  "resolved" "https://registry.npmjs.org/flexlayout-react/-/flexlayout-react-0.6.2.tgz"
+  "version" "0.6.2"
+  dependencies:
+    "uuid" "^8.3.2"
+
 "flush-write-stream@^1.0.0":
   "integrity" "sha512-3Z4XhFZ3992uIq0XOqb9AreonueSYphE6oYbpt5+3u06JWklbsPkNv3ZKkP9Bz/r+1MWCaMoSQ28P85+1Yc77w=="
   "resolved" "https://registry.npmjs.org/flush-write-stream/-/flush-write-stream-1.1.1.tgz"
@@ -11638,6 +11645,11 @@
   "version" "3.4.0"
 
 "uuid@^8.3.0":
+  "integrity" "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg=="
+  "resolved" "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
+  "version" "8.3.2"
+
+"uuid@^8.3.2":
   "integrity" "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg=="
   "resolved" "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
   "version" "8.3.2"
