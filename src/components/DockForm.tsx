@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
-import { CDockForm } from './behavior';
+import { CDockForm } from './hooks';
 
 const Wrapper = styled.div`
     position: absolute;

@@ -1,7 +1,7 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import DockForm from "./DockForm";
 import styled from 'styled-components';
-import { CDockForm, CDockPanel, DragDropable } from "./behavior";
+import { CDockForm, CDockPanel, DockLayoutDirection, DragDropable } from "./hooks";
 
 
 const NoContent = styled.div`
@@ -61,24 +61,46 @@ export const Tabs = styled.div`
     }
 `
 
-const DockPanel = ({ panel, onLayout, onRenderForm }
-    : { panel: CDockPanel, onLayout: (sourceId: string, destinationId: string) => void, onRenderForm: (form: CDockForm) => ReactNode }) => {
+const DockPanel = ({ panel, onStacking, onSplitting, onRenderForm }
+    : {
+        panel: CDockPanel,
+        onStacking: (sourceId: string, destinationId: string) => boolean,
+        onSplitting: (sourceId: string, destinationId: string, direction: DockLayoutDirection) => boolean,
+        onRenderForm: (form: CDockForm) => ReactNode,
+    }) => {
 
     const [activeForm, setActiveForm] = useState(0);
+    const panelRef = useRef<HTMLDivElement>(null);
 
     const dragDrop = new DragDropable();
 
-    const handleDrop = (source: string) => {
-        setActiveForm(prev => 0);
-        onLayout(source, panel.id);
+    const handleStacking = (e: DragEvent, source: string): boolean => {
+        setActiveForm(prev => Math.min(panel.forms.length - 1, prev));
+        return onStacking(source, panel.id);
     }
 
-    const getActiveForm = () => {
-        return Math.min(panel.forms.length - 1, activeForm);
+    const handleSplitting = (e: DragEvent, source: string): boolean => {
+        setActiveForm(prev => Math.min(panel.forms.length - 1, prev));
+        // check which side the mouse is close to
+        const destination = panelRef.current;
+        let direction = DockLayoutDirection.Horizontal
+        if (destination) {
+            const destinationRect = destination.getBoundingClientRect();
+            const left = Math.abs(destinationRect.left - e.clientX);
+            const right = Math.abs(destinationRect.right - e.clientX);
+            const top = Math.abs(destinationRect.top - e.clientY);
+            const bottom = Math.abs(destinationRect.bottom - e.clientY);
+            const min = Math.min(left, right, top, bottom);
+            if (min === top || min === bottom) direction = DockLayoutDirection.Vertical
+        }
+        return onSplitting(source, panel.id, direction);
     }
 
     const renderTabs = () => (
-        <Tabs className="tabs">
+        <Tabs className="tabs"
+            onDragOver={(e) => dragDrop.onDragOver(e.nativeEvent, () => true)}
+            onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleStacking)}
+        >
             {panel.forms.map((f, i) => (
                 <div
                     key={f.id}
@@ -93,15 +115,17 @@ const DockPanel = ({ panel, onLayout, onRenderForm }
     )
 
     const renderForm = () => (
-        <Wrapper className="dock-panel"
-            onDragOver={(e) => dragDrop.onDragOver(e.nativeEvent, () => true)}
-            onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleDrop)}
-        >
+        <Wrapper ref={panelRef} className="dock-panel">
             <Title
                 draggable
-                onDragStart={(e) => dragDrop.onDragStart(e.nativeEvent, panel.forms[getActiveForm()].id)}
-            >{panel.forms[getActiveForm()].title} {panel.forms[getActiveForm()].id}</Title>
-            <Content className="content">
+                onDragStart={(e) => dragDrop.onDragStart(e.nativeEvent, panel.forms[activeForm].id)}
+                onDragOver={(e) => dragDrop.onDragOver(e.nativeEvent, () => true)}
+                onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleStacking)}
+            >{panel.forms[activeForm].title} {panel.forms[activeForm].id}</Title>
+            <Content className="content"
+                onDragOver={(e) => dragDrop.onDragOver(e.nativeEvent, () => true)}
+                onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleSplitting)}
+            >
                 <DockForm form={panel.forms[activeForm]} onRenderForm={onRenderForm} />
             </Content>
             {panel.forms.length > 1 ? renderTabs() : ''}
@@ -109,9 +133,9 @@ const DockPanel = ({ panel, onLayout, onRenderForm }
     )
 
     const renderEmpty = () => (
-        <NoContent
+        <NoContent ref={panelRef}
             onDragOver={(e) => dragDrop.onDragOver(e.nativeEvent, () => true)}
-            onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleDrop)}
+            onDrop={(e) => dragDrop.onDrop(e.nativeEvent, handleStacking)}
         ><div>Drop a form here to display {panel.id}</div></NoContent>
     )
 
