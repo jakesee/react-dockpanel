@@ -2,6 +2,7 @@ import DockPanel from "./DockPanel";
 import styled from 'styled-components';
 import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable, CDockForm, Point } from "./hooks";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import React from "react";
 
 
 const Wrapper = styled.div`
@@ -14,6 +15,7 @@ const Wrapper = styled.div`
 const Separator = styled.div`
     background-color: #304261;
     flex: 0 0 4px;
+    z-index: 999;
 `
 const Primary = styled.div`
     position: relative;
@@ -44,9 +46,9 @@ const DockLayout = ({ layout, onStacking, onSplitting, onRenderForm }
     const splitterRef = useRef<HTMLDivElement | null>(null);
     const separatorRef = useRef<HTMLDivElement | null>(null);
 
-    const [secondarySize, setSecondarySize] = useState<number>(splitter.size ?? 0);
+    const [secondarySize, setSecondarySize] = useState<number>(splitter.size ?? 50);
 
-    const movable = new Movable((delta, target) => {
+    const movable = new Movable((_delta, target) => {
         if (isSplitter)
         {
             handleMove(target);
@@ -55,32 +57,32 @@ const DockLayout = ({ layout, onStacking, onSplitting, onRenderForm }
 
     const getSecondaryPaneSize = (splitterRect: DOMRect, separatorRect: DOMRect, clientPosition: Point, offsetMouse: boolean) => {
         let totalSize;
-        let splitterSize;
+        let sepSize;
         let offset;
         const splitter = layout as CDockSplitter;
         if (splitter.direction === DockLayoutDirection.Vertical) {
             totalSize = splitterRect.height;
-            splitterSize = separatorRect.height;
+            sepSize = separatorRect.height;
             offset = clientPosition.y - splitterRect.top;
         } else {
             totalSize = splitterRect.width;
-            splitterSize = separatorRect.width;
+            sepSize = separatorRect.width;
             offset = clientPosition.x - splitterRect.left;
         }
         if (offsetMouse) {
-            offset -= splitterSize / 2;
+            offset -= sepSize / 2;
         }
         if (offset < 0) {
             offset = 0;
-        } else if (offset > totalSize - splitterSize) {
-            offset = totalSize - splitterSize;
+        } else if (offset > totalSize - sepSize) {
+            offset = totalSize - sepSize;
         }
 
-        let secondaryPaneSize = totalSize - splitterSize - offset;
-        let primaryPaneSize = totalSize - splitterSize - secondaryPaneSize;
+        let secondaryPaneSize = totalSize - sepSize - offset;
+        let primaryPaneSize = totalSize - sepSize - secondaryPaneSize;
         secondaryPaneSize = (secondaryPaneSize * 100) / totalSize;
         primaryPaneSize = (primaryPaneSize * 100) / totalSize;
-        splitterSize = (splitterSize * 100) / totalSize;
+        sepSize = (sepSize * 100) / totalSize;
         totalSize = 100;
 
         // adjust minimum sizes here as required
@@ -89,7 +91,7 @@ const DockLayout = ({ layout, onStacking, onSplitting, onRenderForm }
         if (primaryPaneSize < primaryMinSize) {
             secondaryPaneSize = Math.max(secondaryPaneSize - (primaryMinSize - primaryPaneSize), 0);
         } else if (secondaryPaneSize < secondaryMinSize) {
-            secondaryPaneSize = Math.min(totalSize - splitterSize - primaryMinSize, secondaryMinSize);
+            secondaryPaneSize = Math.min(totalSize - sepSize - primaryMinSize, secondaryMinSize);
         }
 
         return secondaryPaneSize;

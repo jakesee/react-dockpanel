@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
-import { CDockForm, CDockLayoutItem, DockLayoutDirection, IDockManager } from './hooks';
+import { CDockForm, DockLayoutDirection, IDockManager } from './hooks';
 import DockLayout from './DockLayout';
 
 export const Wrapper = styled.div`
@@ -16,7 +16,7 @@ export const Wrapper = styled.div`
     overflow: hidden;
 `;
 
-const DockManager = ({ dockManager, onStacking, onSplitting, onRenderForm }
+export const DockManager = ({ dockManager, onStacking, onSplitting, onRenderForm }
     : {
         dockManager: IDockManager,
         onStacking?: (sourceId: string, destinationId: string) => boolean,
@@ -50,6 +50,3 @@ const DockManager = ({ dockManager, onStacking, onSplitting, onRenderForm }
         </Wrapper>
     )
 }
-
-export default DockManager;
-

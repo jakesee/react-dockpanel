@@ -79,6 +79,7 @@ export class Movable {
 
     private _onEndDrag(point: Point) {
         this.isDragging = false;
+        this.current = point;
 
         document.removeEventListener('mousemove', this._onMouseMove);
         document.removeEventListener('mouseup', this._onMouseUp);
@@ -100,7 +101,6 @@ export class Movable {
         // }
     }
 }
-
 
 export class DragDropable {
 
@@ -134,7 +134,6 @@ export enum DockLayoutDirection {
     Vertical = 'Vertical'
 }
 
-
 export enum DockLayoutItemType {
     Splitter = 'Splitter',
     Panel = 'Panel'
@@ -144,13 +143,12 @@ export class CDockLayoutItem {
     constructor(public id: string, public type: DockLayoutItemType) { }
 }
 
-
 export class CDockSplitter extends CDockLayoutItem {
     constructor(
         public id: string,
         public primary: CDockLayoutItem,
         public secondary: CDockLayoutItem,
-        public direction: DockLayoutDirection = DockLayoutDirection.Horizontal,
+        public direction: DockLayoutDirection,
         public size: number
     ) {
         super(id, DockLayoutItemType.Splitter);
@@ -170,7 +168,7 @@ export interface IDockManager {
     clone: (layout: CDockLayoutItem) => CDockLayoutItem,
     createForm: (title: string, children?: ReactNode, icon?: ReactNode) => CDockForm
     createPanel: (forms: CDockForm[]) => CDockPanel
-    createSplitter: (primary: CDockLayoutItem, secondary: CDockLayoutItem, direction: DockLayoutDirection, size: number) => CDockSplitter,
+    createSplitter: (primary: CDockLayoutItem, secondary: CDockLayoutItem, direction?: DockLayoutDirection, size?: number) => CDockSplitter,
     stack: (formId: string, panelId: string) => void,
     split: (formId: string, destPanelId: string, direction: DockLayoutDirection) => void
 }
@@ -195,7 +193,7 @@ export const useDockManager = (): IDockManager => {
         return new CDockPanel(_hash('dmp'), forms);
     }
 
-    const createSplitter = (primary: CDockLayoutItem, secondary: CDockLayoutItem, direction: DockLayoutDirection = DockLayoutDirection.Horizontal, size: number = 20) => {
+    const createSplitter = (primary: CDockLayoutItem, secondary: CDockLayoutItem, direction: DockLayoutDirection = DockLayoutDirection.Horizontal, size: number = 50) => {
         return new CDockSplitter(_hash('dms'), primary, secondary, direction, size);
     }
 
@@ -218,7 +216,7 @@ export const useDockManager = (): IDockManager => {
                     panel.forms.splice(index, 1);
 
                     // find the destination panel
-                    const [destPanel, parent, grandparent] = _findLayoutItem(layout, destPanelId, null, null);
+                    const [destPanel, parent] = _findLayoutItem(layout, destPanelId, null, null);
                     if (destPanel) {
                         // prepare a new splitter with both the old and new panel
                         const newPanel = createPanel([form]);
@@ -304,7 +302,7 @@ export const useDockManager = (): IDockManager => {
     }
 
     const _replace = (root: CDockLayoutItem, oldItem: CDockSplitter, newItem: CDockPanel): CDockLayoutItem => {
-        const [found, parent, grandparent] = _findLayoutItem(root, oldItem.id, null, null);
+        const [found, parent] = _findLayoutItem(root, oldItem.id, null, null);
         if (found && parent) {
             if (found.id === parent.primary.id) {
                 parent.primary = newItem;
@@ -342,8 +340,7 @@ export const useDockManager = (): IDockManager => {
         return [null, null];
     }
 
-    const _findLayoutItem = (layoutItem: CDockLayoutItem, searchId: string, parent: CDockSplitter | null, grandparent: CDockSplitter | null)
-        : [found: CDockLayoutItem | null, parent: CDockSplitter | null, grandparent: CDockSplitter | null] => {
+    const _findLayoutItem = (layoutItem: CDockLayoutItem, searchId: string, parent: CDockSplitter | null, grandparent: CDockSplitter | null): [CDockLayoutItem | null, CDockSplitter | null, CDockSplitter | null] => {
 
         if (searchId === layoutItem.id) {
             // found!

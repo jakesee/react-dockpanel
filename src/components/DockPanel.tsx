@@ -2,6 +2,7 @@ import { ReactNode, useRef, useState } from "react";
 import DockForm from "./DockForm";
 import styled from 'styled-components';
 import { CDockForm, CDockPanel, DockLayoutDirection, DragDropable } from "./hooks";
+import React from "react";
 
 
 const NoContent = styled.div`
@@ -74,7 +75,7 @@ const DockPanel = ({ panel, onStacking, onSplitting, onRenderForm }
 
     const dragDrop = new DragDropable();
 
-    const handleStacking = (e: DragEvent, source: string): boolean => {
+    const handleStacking = (_e: DragEvent, source: string): boolean => {
         setActiveForm(prev => Math.min(panel.forms.length - 1, prev));
         return onStacking(source, panel.id);
     }
