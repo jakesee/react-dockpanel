@@ -4,7 +4,7 @@
 React panels that can split screen and stack forms.
 
 ## Install
-npm i dockpanel
+`npm i dock-panel-suite`
 
 ## Usage
 
