@@ -101,18 +101,12 @@ export class DragDropable {
     e.dataTransfer?.setData('source-data', sourceData);
   }
 
-  public onDragOver(
-    e: DragEvent,
-    canDrop: (e: DragEvent, data: string) => boolean
-  ) {
+  public onDragOver(e: DragEvent, canDrop: (e: DragEvent, data: string) => boolean) {
     const data = e.dataTransfer?.getData('source-data') ?? '';
     if (canDrop(e, data)) e.preventDefault();
   }
 
-  public onDrop(
-    e: DragEvent,
-    action: (e: DragEvent, sourceData: string) => boolean
-  ) {
+  public onDrop(e: DragEvent, action: (e: DragEvent, sourceData: string) => boolean) {
     const data = e.dataTransfer?.getData('source-data');
     if (data && action && action(e, data)) {
       e.stopImmediatePropagation();
@@ -121,12 +115,7 @@ export class DragDropable {
 }
 
 export class CDockForm {
-  constructor(
-    public id: string,
-    public title: string,
-    public children?: ReactNode,
-    public icon?: ReactNode
-  ) {}
+  constructor(public id: string, public title: string, public children?: ReactNode, public icon?: ReactNode) {}
 }
 
 export enum DockLayoutDirection {
@@ -165,24 +154,11 @@ export interface IDockManager {
   layout: CDockLayoutItem;
   setLayout: Dispatch<SetStateAction<CDockLayoutItem>>;
   clone: (layout: CDockLayoutItem) => CDockLayoutItem;
-  createForm: (
-    title: string,
-    children?: ReactNode,
-    icon?: ReactNode
-  ) => CDockForm;
+  createForm: (title: string, cchildren?: ReactNode, cicon?: ReactNode) => CDockForm;
   createPanel: (forms: CDockForm[]) => CDockPanel;
-  createSplitter: (
-    primary: CDockLayoutItem,
-    secondary: CDockLayoutItem,
-    direction?: DockLayoutDirection,
-    size?: number
-  ) => CDockSplitter;
+  createSplitter: (primary: CDockLayoutItem, secondary: CDockLayoutItem, direction?: DockLayoutDirection, size?: number) => CDockSplitter;
   stack: (formId: string, panelId: string) => void;
-  split: (
-    formId: string,
-    destPanelId: string,
-    direction: DockLayoutDirection
-  ) => void;
+  split: (formId: string, destPanelId: string, direction: DockLayoutDirection) => void;
 }
 
 export const useDockManager = (): IDockManager => {
@@ -196,11 +172,7 @@ export const useDockManager = (): IDockManager => {
     return JSON.parse(JSON.stringify(layout));
   };
 
-  const createForm = (
-    title: string,
-    children?: ReactNode,
-    icon?: ReactNode
-  ) => {
+  const createForm = (title: string, children?: ReactNode, icon?: ReactNode) => {
     return new CDockForm(_hash('dmf'), title, children, icon);
   };
 
@@ -219,11 +191,7 @@ export const useDockManager = (): IDockManager => {
 
   const [layout, setLayout] = useState<CDockLayoutItem>(createPanel([]));
 
-  const split = (
-    formId: string,
-    destPanelId: string,
-    direction: DockLayoutDirection
-  ) => {
+  const split = (formId: string, destPanelId: string, direction: DockLayoutDirection) => {
     setLayout(layout => {
       // find the form and its panel
       const { form, panel } = _findForm(layout, formId);
@@ -238,11 +206,7 @@ export const useDockManager = (): IDockManager => {
           panel.forms.splice(index, 1);
 
           // find the destination panel
-          const { found: destPanel, parent } = _findLayoutItem(
-            layout,
-            destPanelId,
-            null
-          );
+          const { found: destPanel, parent } = _findLayoutItem(layout, destPanelId, null);
           if (destPanel) {
             // prepare a new splitter with both the old and new panel
             const newPanel = createPanel([form]);
@@ -321,11 +285,7 @@ export const useDockManager = (): IDockManager => {
     return root;
   };
 
-  const _replace = (
-    root: CDockLayoutItem,
-    oldItem: CDockSplitter,
-    newItem: CDockPanel
-  ): CDockLayoutItem => {
+  const _replace = (root: CDockLayoutItem, oldItem: CDockSplitter, newItem: CDockPanel): CDockLayoutItem => {
     const { found, parent } = _findLayoutItem(root, oldItem.id, null);
     if (found && parent) {
       if (found.id === parent.primary.id) {
@@ -340,10 +300,7 @@ export const useDockManager = (): IDockManager => {
     }
   };
 
-  const _findForm = (
-    layoutItem: CDockLayoutItem,
-    formId: string
-  ): { form: CDockForm | null; panel: CDockPanel | null } => {
+  const _findForm = (layoutItem: CDockLayoutItem, formId: string): { form: CDockForm | null; panel: CDockPanel | null } => {
     if (layoutItem.type === DockLayoutItemType.Panel) {
       const panel = layoutItem as CDockPanel;
       const form = panel.forms.find(f => f.id === formId);
@@ -375,19 +332,11 @@ export const useDockManager = (): IDockManager => {
       return { found: layoutItem, parent };
     } else if (layoutItem.type === DockLayoutItemType.Splitter) {
       const splitter = layoutItem as CDockSplitter;
-      const { found, parent } = _findLayoutItem(
-        splitter.primary,
-        searchId,
-        splitter
-      );
+      const { found, parent } = _findLayoutItem(splitter.primary, searchId, splitter);
       if (Boolean(found)) {
         return { found, parent };
       } else {
-        const { found, parent } = _findLayoutItem(
-          splitter.secondary,
-          searchId,
-          splitter
-        );
+        const { found, parent } = _findLayoutItem(splitter.secondary, searchId, splitter);
         if (Boolean(found)) {
           return { found, parent };
         }

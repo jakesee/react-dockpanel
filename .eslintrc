@@ -1,0 +1,6 @@
+{
+    "rules": {
+        "function-call-argument-newline": [1, "never"],
+        "function-paren-newline": [1, "never"]
+    }
+}

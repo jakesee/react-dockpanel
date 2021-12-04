@@ -16,35 +16,27 @@ export const Wrapper = styled.div`
 `;
 
 export const DockManager = ({
-  dockManager,
+  manager,
   onStacking,
   onSplitting,
   onRenderForm,
 }: {
-  dockManager: IDockManager;
+  manager: IDockManager;
   onStacking?: (sourceId: string, destinationId: string) => boolean;
-  onSplitting?: (
-    sourceId: string,
-    destinationId: string,
-    direction: DockLayoutDirection
-  ) => boolean;
+  onSplitting?: (sourceId: string, destinationId: string, direction: DockLayoutDirection) => boolean;
   onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
   const handleStacking = (formId: string, panelId: string): boolean => {
     if (!(onStacking && onStacking(formId, panelId))) {
-      dockManager.stack(formId, panelId);
+      manager.stack(formId, panelId);
     }
 
     return true;
   };
 
-  const handleSplitting = (
-    formId: string,
-    panelId: string,
-    direction: DockLayoutDirection
-  ) => {
+  const handleSplitting = (formId: string, panelId: string, direction: DockLayoutDirection) => {
     if (!(onSplitting && onSplitting(formId, panelId, direction))) {
-      dockManager.split(formId, panelId, direction);
+      manager.split(formId, panelId, direction);
     }
 
     return true;
@@ -52,12 +44,7 @@ export const DockManager = ({
 
   return (
     <Wrapper className="dock-manager">
-      <DockLayout
-        layout={dockManager.layout}
-        onStacking={handleStacking}
-        onSplitting={handleSplitting}
-        onRenderForm={onRenderForm}
-      />
+      <DockLayout layout={manager.layout} onStacking={handleStacking} onSplitting={handleSplitting} onRenderForm={onRenderForm} />
     </Wrapper>
   );
 };

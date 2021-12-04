@@ -10,13 +10,7 @@ const styleWrapper = {
   right: 0,
 };
 
-const DockForm = ({
-  form,
-  onRenderForm,
-}: {
-  form: CDockForm;
-  onRenderForm: (form: CDockForm) => ReactNode;
-}) => {
+const DockForm = ({ form, onRenderForm }: { form: CDockForm; onRenderForm: (form: CDockForm) => ReactNode }) => {
   return <div style={styleWrapper}>{onRenderForm(form)}</div>;
 };
 

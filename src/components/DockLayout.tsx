@@ -1,15 +1,6 @@
 import DockPanel from './DockPanel';
 import styled from 'styled-components';
-import {
-  CDockLayoutItem,
-  DockLayoutItemType,
-  CDockPanel,
-  CDockSplitter,
-  DockLayoutDirection,
-  Movable,
-  CDockForm,
-  Point,
-} from './hooks';
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable, CDockForm, Point } from './hooks';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import React from 'react';
 
@@ -47,11 +38,7 @@ const DockLayout = ({
 }: {
   layout: CDockLayoutItem;
   onStacking: (sourceId: string, destinationId: string) => boolean;
-  onSplitting: (
-    sourceId: string,
-    destinationId: string,
-    direction: DockLayoutDirection
-  ) => boolean;
+  onSplitting: (sourceId: string, destinationId: string, direction: DockLayoutDirection) => boolean;
   onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
@@ -61,9 +48,7 @@ const DockLayout = ({
   const splitterRef = useRef<HTMLDivElement | null>(null);
   const separatorRef = useRef<HTMLDivElement | null>(null);
 
-  const [secondarySize, setSecondarySize] = useState<number>(
-    splitter.size ?? 50
-  );
+  const [secondarySize, setSecondarySize] = useState<number>(splitter.size ?? 50);
 
   const movable = new Movable((_delta, target) => {
     if (isSplitter) {
@@ -71,12 +56,7 @@ const DockLayout = ({
     }
   });
 
-  const getSecondaryPaneSize = (
-    splitterRect: DOMRect,
-    separatorRect: DOMRect,
-    clientPosition: Point,
-    offsetMouse: boolean
-  ) => {
+  const getSecondaryPaneSize = (splitterRect: DOMRect, separatorRect: DOMRect, clientPosition: Point, offsetMouse: boolean) => {
     let totalSize;
     let sepSize;
     let offset;
@@ -110,15 +90,9 @@ const DockLayout = ({
     const primaryMinSize = 10; // percentage
     const secondaryMinSize = 10; // percentage
     if (primaryPaneSize < primaryMinSize) {
-      secondaryPaneSize = Math.max(
-        secondaryPaneSize - (primaryMinSize - primaryPaneSize),
-        0
-      );
+      secondaryPaneSize = Math.max(secondaryPaneSize - (primaryMinSize - primaryPaneSize), 0);
     } else if (secondaryPaneSize < secondaryMinSize) {
-      secondaryPaneSize = Math.min(
-        totalSize - sepSize - primaryMinSize,
-        secondaryMinSize
-      );
+      secondaryPaneSize = Math.min(totalSize - sepSize - primaryMinSize, secondaryMinSize);
     }
 
     return secondaryPaneSize;
@@ -130,12 +104,7 @@ const DockLayout = ({
     if (separator && splitter) {
       const containerRect = splitter.getBoundingClientRect();
       const splitterRect = separator.getBoundingClientRect();
-      const secondaryPaneSize = getSecondaryPaneSize(
-        containerRect,
-        splitterRect,
-        target,
-        true
-      );
+      const secondaryPaneSize = getSecondaryPaneSize(containerRect, splitterRect, target, true);
       //clearSelection();
       setSecondarySize(secondaryPaneSize);
     }
@@ -147,12 +116,7 @@ const DockLayout = ({
     if (separator && splitter) {
       const splitterRect = splitter.getBoundingClientRect();
       const separatorRect = separator.getBoundingClientRect();
-      const secondaryPaneSize = getSecondaryPaneSize(
-        splitterRect,
-        separatorRect,
-        new Point(separatorRect.left, separatorRect.top),
-        false
-      );
+      const secondaryPaneSize = getSecondaryPaneSize(splitterRect, separatorRect, new Point(separatorRect.left, separatorRect.top), false);
       setSecondarySize(secondaryPaneSize);
     }
   };
@@ -190,12 +154,7 @@ const DockLayout = ({
   const renderSplitter = () => (
     <>
       <Primary className="dock-layout-primary">
-        <DockLayout
-          layout={splitter.primary}
-          onStacking={onStacking}
-          onSplitting={onSplitting}
-          onRenderForm={onRenderForm}
-        />
+        <DockLayout layout={splitter.primary} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
       </Primary>
       <Separator
         className="separator"
@@ -204,37 +163,20 @@ const DockLayout = ({
         onMouseDown={e => movable.onMouseDown(e.nativeEvent)}
         onTouchStart={e => movable.onTouchStart(e.nativeEvent)}
       />
-      <Secondary
-        className="dock-layout-secondary"
-        style={getSecondaryStyle(splitter.direction, secondarySize)}
-      >
-        <DockLayout
-          layout={splitter.secondary}
-          onStacking={onStacking}
-          onSplitting={onSplitting}
-          onRenderForm={onRenderForm}
-        />
+      <Secondary className="dock-layout-secondary" style={getSecondaryStyle(splitter.direction, secondarySize)}>
+        <DockLayout layout={splitter.secondary} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
       </Secondary>
     </>
   );
 
   const renderPanel = () => (
     <Primary className="dock-layout-primary">
-      <DockPanel
-        panel={panel}
-        onStacking={onStacking}
-        onSplitting={onSplitting}
-        onRenderForm={onRenderForm}
-      />
+      <DockPanel panel={panel} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
     </Primary>
   );
 
   return (
-    <Wrapper
-      style={getWrapperStyle(splitter.direction)}
-      className={layout.id}
-      ref={splitterRef}
-    >
+    <Wrapper style={getWrapperStyle(splitter.direction)} className={layout.id} ref={splitterRef}>
       {isSplitter ? renderSplitter() : renderPanel()}
     </Wrapper>
   );

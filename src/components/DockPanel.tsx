@@ -1,12 +1,7 @@
 import { ReactNode, useRef, useState } from 'react';
 import DockForm from './DockForm';
 import styled from 'styled-components';
-import {
-  CDockForm,
-  CDockPanel,
-  DockLayoutDirection,
-  DragDropable,
-} from './hooks';
+import { CDockForm, CDockPanel, DockLayoutDirection, DragDropable } from './hooks';
 import React from 'react';
 
 const NoContent = styled.div`
@@ -73,11 +68,7 @@ const DockPanel = ({
 }: {
   panel: CDockPanel;
   onStacking: (sourceId: string, destinationId: string) => boolean;
-  onSplitting: (
-    sourceId: string,
-    destinationId: string,
-    direction: DockLayoutDirection
-  ) => boolean;
+  onSplitting: (sourceId: string, destinationId: string, direction: DockLayoutDirection) => boolean;
   onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
   const [activeForm, setActiveForm] = useState(0);
@@ -102,18 +93,13 @@ const DockPanel = ({
       const top = Math.abs(destinationRect.top - e.clientY);
       const bottom = Math.abs(destinationRect.bottom - e.clientY);
       const min = Math.min(left, right, top, bottom);
-      if (min === top || min === bottom)
-        direction = DockLayoutDirection.Vertical;
+      if (min === top || min === bottom) direction = DockLayoutDirection.Vertical;
     }
     return onSplitting(source, panel.id, direction);
   };
 
   const renderTabs = () => (
-    <Tabs
-      className="tabs"
-      onDragOver={e => dragDrop.onDragOver(e.nativeEvent, () => true)}
-      onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStacking)}
-    >
+    <Tabs className="tabs" onDragOver={e => dragDrop.onDragOver(e.nativeEvent, () => true)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStacking)}>
       {panel.forms.map((f, i) => (
         <div
           key={f.id}
@@ -132,9 +118,7 @@ const DockPanel = ({
     <Wrapper ref={panelRef} className="dock-panel">
       <Title
         draggable
-        onDragStart={e =>
-          dragDrop.onDragStart(e.nativeEvent, panel.forms[activeForm].id)
-        }
+        onDragStart={e => dragDrop.onDragStart(e.nativeEvent, panel.forms[activeForm].id)}
         onDragOver={e => dragDrop.onDragOver(e.nativeEvent, () => true)}
         onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStacking)}
       >
@@ -152,11 +136,7 @@ const DockPanel = ({
   );
 
   const renderEmpty = () => (
-    <NoContent
-      ref={panelRef}
-      onDragOver={e => dragDrop.onDragOver(e.nativeEvent, () => true)}
-      onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStacking)}
-    >
+    <NoContent ref={panelRef} onDragOver={e => dragDrop.onDragOver(e.nativeEvent, () => true)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStacking)}>
       <div>Drop a form here to display {panel.id}</div>
     </NoContent>
   );

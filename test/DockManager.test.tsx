@@ -9,23 +9,15 @@ const TestApp = () => {
   const manager = useDockManager();
   return (
     <div>
-      <DockManager dockManager={manager} onRenderForm={() => 'No Content'} />
+      <DockManager manager={manager} onRenderForm={() => 'No Content'} />
     </div>
   );
 };
 
-
 describe('it', () => {
   it('renders without crashing', () => {
-
-    render(<TestApp />)
-
-    const textNoContent = screen.getByText(/Drop a form here to display/i);
-
-    expect(textNoContent).toBeTruthy();
-
-    // const div = document.createElement('div');
-    // ReactDOM.render(<TestApp />, div);
-    // ReactDOM.unmountComponentAtNode(div);
+    render(<TestApp />);
+    const textNoForm = screen.getByText(/Drop a form here to display/i);
+    expect(textNoForm).toBeTruthy();
   });
 });
