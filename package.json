@@ -46,7 +46,10 @@
     "react",
     "dockpanel",
     "dock",
-    "panel"
+    "panel",
+    "layout",
+    "drag",
+    "drop"
   ],
   "size-limit": [
     {
