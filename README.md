@@ -1,4 +1,4 @@
-# Dock Panel Suite
+# React DockPanel
 
 ## Introduction
 React panels that can split screen and stack forms.
