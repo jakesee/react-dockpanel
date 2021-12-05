@@ -1,6 +1,6 @@
 import DockPanel from './DockPanel';
 import styled from 'styled-components';
-import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, DockLayoutDirection, Movable, CDockForm, Point } from './hooks';
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, CDockForm, Point, DockEvent, DockingEvent } from './hooks';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import React from 'react';
 
@@ -11,11 +11,15 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-const Separator = styled.div`
-  background-color: #304261;
-  flex: 0 0 4px;
-  z-index: 999;
-`;
+const getSeparatorStyle = (vertical: boolean): React.CSSProperties => {
+  return {
+    backgroundColor: '#304261',
+    flex: '0 0 4px',
+    zIndex: '999',
+    cursor: vertical ? 'row-resize' : 'col-resize'
+  }
+};
+
 const Primary = styled.div`
   position: relative;
   flex: 1 1 auto;
@@ -32,13 +36,17 @@ const Secondary = styled.div`
 
 const DockLayout = ({
   layout,
+  onStack,
+  onSplit,
   onStacking,
   onSplitting,
   onRenderForm,
 }: {
   layout: CDockLayoutItem;
-  onStacking: (sourceId: string, destinationId: string) => boolean;
-  onSplitting: (sourceId: string, destinationId: string, direction: DockLayoutDirection) => boolean;
+    onStack: (e: DockEvent) => boolean;
+    onSplit: (e: DockEvent) => boolean;
+    onStacking: (e: DockingEvent) => boolean;
+    onSplitting: (e: DockingEvent) => boolean;
   onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
@@ -61,7 +69,7 @@ const DockLayout = ({
     let sepSize;
     let offset;
     const splitter = layout as CDockSplitter;
-    if (splitter.direction === DockLayoutDirection.Vertical) {
+    if (splitter.isVertical) {
       totalSize = splitterRect.height;
       sepSize = separatorRect.height;
       offset = clientPosition.y - splitterRect.top;
@@ -127,24 +135,18 @@ const DockLayout = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  const getSecondaryStyle = (direction: DockLayoutDirection, size: number) => {
-    if (direction === DockLayoutDirection.Horizontal) {
-      return { width: `${size}%` };
-    } else {
+  const getSecondaryStyle = (isVertical: boolean, size: number) => {
+    if (isVertical) {
       return { height: `${size}%` };
-    }
-  };
-
-  const getSeparatorStyle = (direction: DockLayoutDirection) => {
-    if (direction === DockLayoutDirection.Vertical) {
-      return { cursor: 'row-resize' };
     } else {
-      return { cursor: 'col-resize' };
+      return { width: `${size}%` };
     }
   };
 
-  const getWrapperStyle = (direction: DockLayoutDirection) => {
-    if (direction === DockLayoutDirection.Vertical) {
+
+
+  const getWrapperStyle = (isVertical: boolean) => {
+    if (isVertical) {
       return { flexDirection: 'column' as 'column' };
     } else {
       return { flexDirection: 'row' as 'row' };
@@ -153,30 +155,30 @@ const DockLayout = ({
 
   const renderSplitter = () => (
     <>
-      <Primary className="dock-layout-primary">
-        <DockLayout layout={splitter.primary} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+      <Primary className="dps-dock-layout-primary">
+        <DockLayout layout={splitter.primary} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
       </Primary>
-      <Separator
-        className="separator"
-        style={getSeparatorStyle(splitter.direction)}
+      <div
+        className="dps-separator"
+        style={getSeparatorStyle(splitter.isVertical)}
         ref={separatorRef}
         onMouseDown={e => movable.onMouseDown(e.nativeEvent)}
         onTouchStart={e => movable.onTouchStart(e.nativeEvent)}
       />
-      <Secondary className="dock-layout-secondary" style={getSecondaryStyle(splitter.direction, secondarySize)}>
-        <DockLayout layout={splitter.secondary} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+      <Secondary className="dps-dock-layout-secondary" style={getSecondaryStyle(splitter.isVertical, secondarySize)}>
+        <DockLayout layout={splitter.secondary} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
       </Secondary>
     </>
   );
 
   const renderPanel = () => (
     <Primary className="dock-layout-primary">
-      <DockPanel panel={panel} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+      <DockPanel panel={panel} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
     </Primary>
   );
 
   return (
-    <Wrapper style={getWrapperStyle(splitter.direction)} className={layout.id} ref={splitterRef}>
+    <Wrapper style={getWrapperStyle(splitter.isVertical)} className={layout.id} ref={splitterRef}>
       {isSplitter ? renderSplitter() : renderPanel()}
     </Wrapper>
   );
