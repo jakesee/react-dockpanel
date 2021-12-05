@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -42,7 +42,12 @@
     "type": "git",
     "url": "https://github.com/jakesee/react-dockpanel.git"
   },
-  "keywords": ["react", "dockpanel", "dock", "panel"],
+  "keywords": [
+    "react",
+    "dockpanel",
+    "dock",
+    "panel"
+  ],
   "size-limit": [
     {
       "path": "dist/react-dockpanel.cjs.production.min.js",
