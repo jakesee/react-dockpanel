@@ -35,16 +35,21 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "dock-panel-suite",
+  "name": "react-dockpanel",
   "author": "Jake See",
-  "module": "dist/dock-panel-suite.esm.js",
+  "module": "dist/react-dockpanel.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jakesee/react-dockpanel.git"
+  },
+  "keywords": ["react", "dockpanel", "dock", "panel"],
   "size-limit": [
     {
-      "path": "dist/dock-panel-suite.cjs.production.min.js",
+      "path": "dist/react-dockpanel.cjs.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/dock-panel-suite.esm.js",
+      "path": "dist/react-dockpanel.esm.js",
       "limit": "10 KB"
     }
   ],
