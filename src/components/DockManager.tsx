@@ -8,28 +8,32 @@ export interface Theme {
   systemColor?: string;
 }
 
-const defaultTheme : Theme = {
+const defaultTheme: Theme = {
   backgroundColor1: '#35496a',
   backgroundColor2: '#304261',
   systemColor: '#e8e8ec',
-}
+};
 const styleWrapper = (theme?: Theme): React.CSSProperties => {
   return {
-    'backgroundColor': theme?.backgroundColor1 ?? defaultTheme.backgroundColor1,
-    'position': 'absolute' as 'absolute',
-    'width': '100%',
-    'height': '100%',
-    'overflow': 'hidden' as 'hidden',
-  }
-}
+    backgroundColor: theme?.backgroundColor1 ?? defaultTheme.backgroundColor1,
+    position: 'absolute' as 'absolute',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden' as 'hidden',
+  };
+};
 
-export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
-    manager: IDockManager;
-    theme?: Theme;
-    onDock?: (e: DockEvent) => boolean;
-    onRenderForm: (form: CDockForm) => ReactNode;
+export const DockManager = ({
+  manager,
+  onDock,
+  onRenderForm,
+  theme,
+}: {
+  manager: IDockManager;
+  theme?: Theme;
+  onDock?: (e: DockEvent) => boolean;
+  onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
-
   const blueprintRef = useRef<HTMLDivElement>(null);
 
   const handleStack = (e: DockEvent): boolean => {
@@ -53,7 +57,7 @@ export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
     if (blueprint) hideBlueprint(blueprint);
 
     return true;
-  }
+  };
 
   const calcDockPosition = (e: DragEvent, destination: HTMLDivElement): DockPosition => {
     // test the edges
@@ -72,14 +76,14 @@ export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
 
     // find the nearest point
     const min = Math.min(left, right, top, bottom, center);
-    if (min === top) return DockPosition.Top
+    if (min === top) return DockPosition.Top;
     else if (min === left) return DockPosition.Left;
     else if (min === bottom) return DockPosition.Bottom;
     else if (min === right) return DockPosition.Right;
     else if (min === center) return DockPosition.Center;
 
     return DockPosition.Unknown;
-  }
+  };
 
   const handleStacking = (e: DockingEvent) => {
     const blueprint = blueprintRef.current;
@@ -89,7 +93,7 @@ export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
     }
 
     return true;
-  }
+  };
 
   const handleSplitting = (e: DockingEvent) => {
     const blueprint = blueprintRef.current;
@@ -100,10 +104,9 @@ export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
     }
 
     return true;
-  }
+  };
 
   const showBlueprint = (blueprint: HTMLDivElement, rect: DOMRect, position: DockPosition) => {
-
     blueprint.style.display = 'block';
 
     if (position === DockPosition.Center) {
@@ -142,26 +145,32 @@ export const DockManager = ({ manager, onDock, onRenderForm, theme }: {
       blueprint.style.width = `${rect.width / 2}px`;
       blueprint.style.height = `${rect.height}px`;
     }
-  }
+  };
 
   const hideBlueprint = (blueprint: HTMLDivElement) => {
     blueprint && (blueprint.style.display = 'none');
-  }
-
-
+  };
 
   return (
     <div style={styleWrapper(theme)} className="dock-manager">
-      <DockLayout layout={manager.layout}
-        onStack={handleStack} onSplit={handleSplit}
-        onStacking={handleStacking} onSplitting={handleSplitting}
-        onRenderForm={onRenderForm} />
-      <div ref={blueprintRef} style={{
-        pointerEvents: 'none',
-        position: 'absolute' as 'absolute',
-        transition: 'all 0.12s ease-in',
-        backgroundColor: 'rgba(0, 0, 0, 0.2)'
-      }} className="dock-area"></div>
+      <DockLayout
+        layout={manager.layout}
+        onStack={handleStack}
+        onSplit={handleSplit}
+        onStacking={handleStacking}
+        onSplitting={handleSplitting}
+        onRenderForm={onRenderForm}
+      />
+      <div
+        ref={blueprintRef}
+        style={{
+          pointerEvents: 'none',
+          position: 'absolute' as 'absolute',
+          transition: 'all 0.12s ease-in',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        }}
+        className="dock-area"
+      ></div>
     </div>
   );
 };

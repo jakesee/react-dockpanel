@@ -147,13 +147,7 @@ export class CDockLayoutItem {
 }
 
 export class CDockSplitter extends CDockLayoutItem {
-  constructor(
-    public id: string,
-    public primary: CDockLayoutItem,
-    public secondary: CDockLayoutItem,
-    public isVertical: boolean,
-    public size: number
-  ) {
+  constructor(public id: string, public primary: CDockLayoutItem, public secondary: CDockLayoutItem, public isVertical: boolean, public size: number) {
     super(id, DockLayoutItemType.Splitter);
   }
 }
@@ -162,6 +156,16 @@ export class CDockPanel extends CDockLayoutItem {
   constructor(public id: string, public forms: CDockForm[]) {
     super(id, DockLayoutItemType.Panel);
   }
+}
+
+export enum DockPosition {
+  Unknown = 1,
+  None = 2,
+  Left = 3,
+  Right = 4,
+  Top = 5,
+  Bottom = 6,
+  Center = 7,
 }
 
 export interface IDockManager {
@@ -193,17 +197,11 @@ export const useDockManager = (): IDockManager => {
     return new CDockPanel(_hash('dmp'), forms);
   };
 
-  const createSplitter = (
-    primary: CDockLayoutItem,
-    secondary: CDockLayoutItem,
-    isVertical: boolean = false,
-    size: number = 50
-  ) => {
+  const createSplitter = (primary: CDockLayoutItem, secondary: CDockLayoutItem, isVertical: boolean = false, size: number = 50) => {
     return new CDockSplitter(_hash('dms'), primary, secondary, isVertical, size);
   };
 
   const [layout, setLayout] = useState<CDockLayoutItem>(createPanel([]));
-
 
   const dock = (formId: string, panelId: string, position: DockPosition) => {
     if (position === DockPosition.Center) {
@@ -211,7 +209,7 @@ export const useDockManager = (): IDockManager => {
     } else {
       split(formId, panelId, position);
     }
-  }
+  };
 
   const split = (formId: string, destPanelId: string, position: DockPosition) => {
     setLayout(layout => {
@@ -233,15 +231,19 @@ export const useDockManager = (): IDockManager => {
             // prepare a new splitter with both the old and new panel
             const newPanel = createPanel([form]);
             let newSplitter: CDockSplitter;
-            switch(position) {
+            switch (position) {
               case DockPosition.Left:
-                newSplitter = createSplitter(newPanel, destPanel, false); break;
+                newSplitter = createSplitter(newPanel, destPanel, false);
+                break;
               case DockPosition.Top:
-                newSplitter = createSplitter(newPanel, destPanel, true); break;
+                newSplitter = createSplitter(newPanel, destPanel, true);
+                break;
               case DockPosition.Bottom:
-                newSplitter = createSplitter(destPanel, newPanel, true); break;
+                newSplitter = createSplitter(destPanel, newPanel, true);
+                break;
               default:
-                newSplitter = createSplitter(destPanel, newPanel, false); break;
+                newSplitter = createSplitter(destPanel, newPanel, false);
+                break;
             }
 
             // check where is the original location of the destination panel
@@ -384,19 +386,9 @@ export const useDockManager = (): IDockManager => {
     createForm,
     createPanel,
     createSplitter,
-    dock
+    dock,
   };
 };
-
-export enum DockPosition {
-  Unknown = 1,
-  None = 2,
-  Left = 3,
-  Right = 4,
-  Top = 5,
-  Bottom = 6,
-  Center = 7
-}
 
 export class DockEvent {
   constructor(
@@ -404,15 +396,10 @@ export class DockEvent {
     public formId: string,
     public panelId: string,
     public panel: HTMLDivElement | null,
-    public position: DockPosition,
-  ) { }
+    public position: DockPosition
+  ) {}
 }
 
 export class DockingEvent {
-  constructor(
-    public nativeEvent: DragEvent,
-    public formId: string,
-    public panelId: string,
-    public panel: HTMLDivElement | null,
-  ) { }
+  constructor(public nativeEvent: DragEvent, public formId: string, public panelId: string, public panel: HTMLDivElement | null) {}
 }

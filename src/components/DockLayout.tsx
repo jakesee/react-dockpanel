@@ -16,8 +16,8 @@ const getSeparatorStyle = (vertical: boolean): React.CSSProperties => {
     backgroundColor: '#304261',
     flex: '0 0 4px',
     zIndex: '999',
-    cursor: vertical ? 'row-resize' : 'col-resize'
-  }
+    cursor: vertical ? 'row-resize' : 'col-resize',
+  };
 };
 
 const Primary = styled.div`
@@ -43,10 +43,10 @@ const DockLayout = ({
   onRenderForm,
 }: {
   layout: CDockLayoutItem;
-    onStack: (e: DockEvent) => boolean;
-    onSplit: (e: DockEvent) => boolean;
-    onStacking: (e: DockingEvent) => boolean;
-    onSplitting: (e: DockingEvent) => boolean;
+  onStack: (e: DockEvent) => boolean;
+  onSplit: (e: DockEvent) => boolean;
+  onStacking: (e: DockingEvent) => boolean;
+  onSplitting: (e: DockingEvent) => boolean;
   onRenderForm: (form: CDockForm) => ReactNode;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
@@ -118,6 +118,7 @@ const DockLayout = ({
     }
   };
 
+  const isResizeListened = useRef(false);
   const handleResize = () => {
     const separator = separatorRef.current;
     const splitter = splitterRef.current;
@@ -130,9 +131,13 @@ const DockLayout = ({
   };
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
+    if (!isResizeListened.current) {
+      window.addEventListener('resize', handleResize);
+      isResizeListened.current = true;
+      return () => window.removeEventListener('resize', handleResize);
+    }
 
-    return () => window.removeEventListener('resize', handleResize);
+    return;
   }, [handleResize]);
 
   const getSecondaryStyle = (isVertical: boolean, size: number) => {
@@ -142,8 +147,6 @@ const DockLayout = ({
       return { width: `${size}%` };
     }
   };
-
-
 
   const getWrapperStyle = (isVertical: boolean) => {
     if (isVertical) {
@@ -156,7 +159,14 @@ const DockLayout = ({
   const renderSplitter = () => (
     <>
       <Primary className="dps-dock-layout-primary">
-        <DockLayout layout={splitter.primary} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+        <DockLayout
+          layout={splitter.primary}
+          onStack={onStack}
+          onSplit={onSplit}
+          onStacking={onStacking}
+          onSplitting={onSplitting}
+          onRenderForm={onRenderForm}
+        />
       </Primary>
       <div
         className="dps-separator"
@@ -166,7 +176,14 @@ const DockLayout = ({
         onTouchStart={e => movable.onTouchStart(e.nativeEvent)}
       />
       <Secondary className="dps-dock-layout-secondary" style={getSecondaryStyle(splitter.isVertical, secondarySize)}>
-        <DockLayout layout={splitter.secondary} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+        <DockLayout
+          layout={splitter.secondary}
+          onStack={onStack}
+          onSplit={onSplit}
+          onStacking={onStacking}
+          onSplitting={onSplitting}
+          onRenderForm={onRenderForm}
+        />
       </Secondary>
     </>
   );

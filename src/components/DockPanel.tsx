@@ -60,7 +60,14 @@ export const Tabs = styled.div`
   }
 `;
 
-const DockPanel = ({ panel, onStack, onSplit, onStacking, onSplitting, onRenderForm }: {
+const DockPanel = ({
+  panel,
+  onStack,
+  onSplit,
+  onStacking,
+  onSplitting,
+  onRenderForm,
+}: {
   panel: CDockPanel;
   onStack: (e: DockEvent) => boolean;
   onSplit: (e: DockEvent) => boolean;
@@ -92,14 +99,12 @@ const DockPanel = ({ panel, onStack, onSplit, onStacking, onSplitting, onRenderF
   };
 
   const handleStacking = (e: DragEvent, source: string): boolean => {
-
     return onStacking(new DockingEvent(e, source, panel.id, panelRef.current));
-  }
+  };
 
   const handleSplitting = (e: DragEvent, source: string): boolean => {
-
     return onSplitting(new DockingEvent(e, source, panel.id, panelRef.current));
-  }
+  };
 
   const renderTabs = () => (
     <Tabs className="tabs" onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}>
@@ -139,18 +144,17 @@ const DockPanel = ({ panel, onStack, onSplit, onStacking, onSplitting, onRenderF
   );
 
   const renderEmpty = () => (
-    <NoContent id={panel.id} ref={panelRef}
+    <NoContent
+      id={panel.id}
+      ref={panelRef}
       onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)}
-      onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}>
+      onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}
+    >
       <div>Drop a form here to display {panel.id}</div>
     </NoContent>
   );
 
-  return (
-    <>
-      {panel.forms.length > 0 ? renderForm() : renderEmpty()}
-    </>
-  );
+  return <>{panel.forms.length > 0 ? renderForm() : renderEmpty()}</>;
 };
 
 export default DockPanel;
