@@ -35,7 +35,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "react-dockpanel",
+  "name": "@jakesee/react-dockpanel",
   "author": "Jake See",
   "module": "dist/react-dockpanel.esm.js",
   "repository": {
