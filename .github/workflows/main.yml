@@ -1,7 +1,8 @@
 name: CI
 on:
-  - branches:
-    - develop
+  push:
+    branches:
+      develop
 
 jobs:
   build:
