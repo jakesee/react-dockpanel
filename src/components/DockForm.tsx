@@ -1,6 +1,5 @@
 import React from 'react';
-import { ReactNode } from 'react';
-import { CDockForm } from './hooks';
+import { CDockForm, RenderFormEvent } from './hooks';
 
 const styleWrapper = {
   position: 'absolute' as 'absolute',
@@ -10,8 +9,15 @@ const styleWrapper = {
   right: 0,
 };
 
-const DockForm = ({ form, onRenderForm }: { form: CDockForm; onRenderForm: (form: CDockForm) => ReactNode }) => {
-  return <div style={styleWrapper}>{onRenderForm(form)}</div>;
+const DockForm = ({ form, onRenderForm }: { form: CDockForm; onRenderForm: (e: RenderFormEvent) => void }) => {
+
+  const renderForm = (form: CDockForm) => {
+    const event = new RenderFormEvent(form, <div></div>);
+    onRenderForm(event);
+    return event.content;
+  }
+
+  return <div style={styleWrapper}>{renderForm(form)}</div>;
 };
 
 export default DockForm;

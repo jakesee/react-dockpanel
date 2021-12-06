@@ -134,7 +134,7 @@ export class DragDropable {
 }
 
 export class CDockForm {
-  constructor(public id: string, public title: string, public children?: ReactNode, public icon?: ReactNode) {}
+  constructor(public id: string, public name: string) {}
 }
 
 export enum DockLayoutItemType {
@@ -153,7 +153,7 @@ export class CDockSplitter extends CDockLayoutItem {
 }
 
 export class CDockPanel extends CDockLayoutItem {
-  constructor(public id: string, public forms: CDockForm[]) {
+  constructor(public id: string, public forms: CDockForm[], public activeForm: number = 0) {
     super(id, DockLayoutItemType.Panel);
   }
 }
@@ -176,6 +176,7 @@ export interface IDockManager {
   createPanel: (forms: CDockForm[]) => CDockPanel;
   createSplitter: (primary: CDockLayoutItem, secondary: CDockLayoutItem, isVertical?: boolean, size?: number) => CDockSplitter;
   dock: (formId: string, panelId: string, position: DockPosition) => void;
+  remove: (formId: string) => void;
 }
 
 export const useDockManager = (): IDockManager => {
@@ -189,8 +190,8 @@ export const useDockManager = (): IDockManager => {
     return JSON.parse(JSON.stringify(layout));
   };
 
-  const createForm = (title: string, children?: ReactNode, icon?: ReactNode) => {
-    return new CDockForm(_hash('dmf'), title, children, icon);
+  const createForm = (name: string) => {
+    return new CDockForm(_hash('dmf'), name);
   };
 
   const createPanel = (forms: CDockForm[]) => {
@@ -290,6 +291,20 @@ export const useDockManager = (): IDockManager => {
     });
   };
 
+  const remove = (formId: string) => {
+
+    setLayout(layout => {
+      const { form, panel } = _findForm(layout, formId);
+      if (form && panel) {
+        const index = panel.forms.findIndex(f => f.id === formId);
+        panel.forms.splice(index, 1)
+      }
+
+      return { ...layout }
+
+    });
+  }
+
   const _occupyFreeSpace = (root: CDockLayoutItem, start: CDockLayoutItem) => {
     if (start.type === DockLayoutItemType.Splitter) {
       const splitter = start as CDockSplitter;
@@ -387,6 +402,7 @@ export const useDockManager = (): IDockManager => {
     createPanel,
     createSplitter,
     dock,
+    remove
   };
 };
 
@@ -396,10 +412,20 @@ export class DockEvent {
     public formId: string,
     public panelId: string,
     public panel: HTMLDivElement | null,
-    public position: DockPosition
+    public position: DockPosition,
+    public isHandled: boolean = false
   ) {}
 }
 
 export class DockingEvent {
-  constructor(public nativeEvent: DragEvent, public formId: string, public panelId: string, public panel: HTMLDivElement | null) {}
+  constructor(public nativeEvent: DragEvent, public formId: string, public panelId: string, public panel: HTMLDivElement | null, public isHandled: boolean = false) {}
+}
+
+
+export class RenderFormEvent {
+  constructor(public form: CDockForm, public content: ReactNode, public isHandled: boolean = false) { }
+}
+
+export class RenderPanelEvent {
+  constructor(public panel: CDockPanel, public content: ReactNode, public isHandled: boolean = false) { }
 }

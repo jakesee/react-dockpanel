@@ -1,5 +1,5 @@
-import React, { ReactNode, useRef } from 'react';
-import { CDockForm, DockingEvent, IDockManager, DockEvent, DockPosition, Point } from './hooks';
+import React, { useRef } from 'react';
+import { DockingEvent, IDockManager, DockEvent, DockPosition, Point, RenderFormEvent, RenderPanelEvent } from './hooks';
 import DockLayout from './DockLayout';
 
 export interface Theme {
@@ -27,12 +27,16 @@ export const DockManager = ({
   manager,
   onDock,
   onRenderForm,
+  onRenderTab,
+  onRenderPanel,
   theme,
 }: {
   manager: IDockManager;
+  onRenderForm: (e: RenderFormEvent) => void;
   theme?: Theme;
   onDock?: (e: DockEvent) => boolean;
-  onRenderForm: (form: CDockForm) => ReactNode;
+  onRenderTab?: (e: RenderFormEvent) => void;
+  onRenderPanel?: (e: RenderPanelEvent) => void;
 }) => {
   const blueprintRef = useRef<HTMLDivElement>(null);
 
@@ -160,6 +164,8 @@ export const DockManager = ({
         onStacking={handleStacking}
         onSplitting={handleSplitting}
         onRenderForm={onRenderForm}
+        onRenderTab={onRenderTab}
+        onRenderPanel={onRenderPanel}
       />
       <div
         ref={blueprintRef}

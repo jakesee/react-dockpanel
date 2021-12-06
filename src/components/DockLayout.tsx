@@ -1,7 +1,7 @@
 import DockPanel from './DockPanel';
 import styled from 'styled-components';
-import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, CDockForm, Point, DockEvent, DockingEvent } from './hooks';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, Point, DockEvent, DockingEvent, RenderFormEvent, RenderPanelEvent } from './hooks';
+import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
 const Wrapper = styled.div`
@@ -41,13 +41,17 @@ const DockLayout = ({
   onStacking,
   onSplitting,
   onRenderForm,
+  onRenderTab,
+  onRenderPanel
 }: {
   layout: CDockLayoutItem;
   onStack: (e: DockEvent) => boolean;
   onSplit: (e: DockEvent) => boolean;
   onStacking: (e: DockingEvent) => boolean;
   onSplitting: (e: DockingEvent) => boolean;
-  onRenderForm: (form: CDockForm) => ReactNode;
+    onRenderForm: (e: RenderFormEvent) => void;
+    onRenderTab?: (e: RenderFormEvent) => void;
+    onRenderPanel?: (e: RenderPanelEvent) => void;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
   const splitter = layout as CDockSplitter;
@@ -166,6 +170,8 @@ const DockLayout = ({
           onStacking={onStacking}
           onSplitting={onSplitting}
           onRenderForm={onRenderForm}
+          onRenderTab={onRenderTab}
+          onRenderPanel={onRenderPanel}
         />
       </Primary>
       <div
@@ -183,6 +189,8 @@ const DockLayout = ({
           onStacking={onStacking}
           onSplitting={onSplitting}
           onRenderForm={onRenderForm}
+          onRenderTab={onRenderTab}
+          onRenderPanel={onRenderPanel}
         />
       </Secondary>
     </>
@@ -190,7 +198,16 @@ const DockLayout = ({
 
   const renderPanel = () => (
     <Primary className="dock-layout-primary">
-      <DockPanel panel={panel} onStack={onStack} onSplit={onSplit} onStacking={onStacking} onSplitting={onSplitting} onRenderForm={onRenderForm} />
+      <DockPanel
+        panel={panel}
+        onStack={onStack}
+        onSplit={onSplit}
+        onStacking={onStacking}
+        onSplitting={onSplitting}
+        onRenderForm={onRenderForm}
+        onRenderTab={onRenderTab}
+        onRenderPanel={onRenderPanel}
+      />
     </Primary>
   );
 
