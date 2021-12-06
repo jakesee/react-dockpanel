@@ -2,6 +2,9 @@ import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { DockManager, useDockManager } from './..';
+import { RenderFormEvent, RenderPanelEvent } from '../dist/components/hooks';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CloseIcon from '@mui/icons-material/Close';
 import './index.css';
 
 const App = () => {
@@ -26,9 +29,44 @@ const App = () => {
     }
   }, []);
 
+  const onRenderPanel = (e: RenderPanelEvent) => {
+    const activeForm = e.panel.forms[e.panel.activeForm];
+    switch (activeForm.name) {
+      case 'Properties':
+        e.content = <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '4px',
+          width: `100%`,
+        }}>
+          <AssignmentIcon fontSize="small" />
+          <div>Properties</div>
+          <CloseIcon fontSize="small" style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => manager.remove(activeForm.id)} />
+        </div>
+        break;
+      default:
+        break;
+    }
+  }
+
+  const onRenderTab = (e: RenderFormEvent) => {
+    switch (e.form.name) {
+      case 'Properties':
+        e.content = <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyItems: 'flex-start'
+        }}><AssignmentIcon fontSize="small" /> Properties</div>
+        break;
+      default:
+        break;
+    }
+  }
+
   return (
     <div>
-      <DockManager manager={manager} onRenderForm={ () => 'No Content'}/>
+      <DockManager manager={manager} onRenderForm={(e) => e.content = 'No Content'} onRenderPanel={onRenderPanel} onRenderTab={onRenderTab}/>
     </div>
   );
 };
