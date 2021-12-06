@@ -41,7 +41,6 @@ export const useDockManager = (): IDockManager => {
 
       if (form && panel) {
         if (panel.id === destPanelId && panel.forms.length <= 1) {
-          console.log('cannot split a panel with only 1 form');
           return layout; // do nothing
         } else {
           // remove form from panel
