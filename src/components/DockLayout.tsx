@@ -14,20 +14,18 @@ const getSeparatorStyle = (vertical: boolean): React.CSSProperties => {
 };
 
 const getPrimaryStyle = (): React.CSSProperties => {
-  const style = {position: 'relative' as 'relative',
-  flex: '1 1 auto',
-  backgroundColor: 'var(--systemColor)',}
+  const style = { position: 'relative' as 'relative', flex: '1 1 auto', backgroundColor: 'var(--systemColor)' };
 
   return style;
-}
+};
 
-const getSecondaryStyle = (isVertical: boolean, size: number):React.CSSProperties => {
+const getSecondaryStyle = (isVertical: boolean, size: number): React.CSSProperties => {
   const style = {
-    position: "relative" as "relative",
-    flex: "0 1 auto",
-    backgroundColor: "var(--systemColor)",
+    position: 'relative' as 'relative',
+    flex: '0 1 auto',
+    backgroundColor: 'var(--systemColor)',
   };
-  
+
   if (isVertical) {
     return { ...style, height: `${size}%` };
   } else {
@@ -40,14 +38,11 @@ const getWrapperStyle = (isVertical: boolean): React.CSSProperties => {
     display: 'flex' as 'flex',
     position: 'absolute' as 'absolute',
     width: '100%',
-    height: '100%'
-  }
+    height: '100%',
+    flexDirection: isVertical ? ('column' as 'column') : ('row' as 'row'),
+  };
 
-  if (isVertical) {
-    return { ...style, flexDirection: 'column' as 'column' };
-  } else {
-    return { ...style, flexDirection: 'row' as 'row' };
-  }
+  return style;
 };
 
 const DockLayout = ({
