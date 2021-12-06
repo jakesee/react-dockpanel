@@ -1,6 +1,17 @@
 import DockPanel from './DockPanel';
 import styled from 'styled-components';
-import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, Point, DockEvent, DockingEvent, RenderFormEvent, RenderPanelEvent } from './hooks';
+import {
+  CDockLayoutItem,
+  DockLayoutItemType,
+  CDockPanel,
+  CDockSplitter,
+  Movable,
+  Point,
+  DockEvent,
+  DockingEvent,
+  RenderFormEvent,
+  RenderPanelEvent,
+} from './hooks';
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
@@ -42,16 +53,16 @@ const DockLayout = ({
   onSplitting,
   onRenderForm,
   onRenderTab,
-  onRenderPanel
+  onRenderPanel,
 }: {
   layout: CDockLayoutItem;
   onStack: (e: DockEvent) => boolean;
   onSplit: (e: DockEvent) => boolean;
   onStacking: (e: DockingEvent) => boolean;
   onSplitting: (e: DockingEvent) => boolean;
-    onRenderForm: (e: RenderFormEvent) => void;
-    onRenderTab?: (e: RenderFormEvent) => void;
-    onRenderPanel?: (e: RenderPanelEvent) => void;
+  onRenderForm: (e: RenderFormEvent) => void;
+  onRenderTab?: (e: RenderFormEvent) => void;
+  onRenderPanel?: (e: RenderPanelEvent) => void;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
   const splitter = layout as CDockSplitter;

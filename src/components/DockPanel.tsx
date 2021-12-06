@@ -68,8 +68,6 @@ export const Tabs = styled.div`
       color: #000000;
     }
   }
-
-
 `;
 
 const DockPanel = ({
@@ -80,7 +78,7 @@ const DockPanel = ({
   onSplitting,
   onRenderForm,
   onRenderTab,
-  onRenderPanel
+  onRenderPanel,
 }: {
   panel: CDockPanel;
   onStack: (e: DockEvent) => void;
@@ -88,7 +86,7 @@ const DockPanel = ({
   onStacking: (e: DockingEvent) => void;
   onSplitting: (e: DockingEvent) => void;
   onRenderForm: (e: RenderFormEvent) => void;
-    onRenderTab?: (e: RenderFormEvent) => void;
+  onRenderTab?: (e: RenderFormEvent) => void;
   onRenderPanel?: (e: RenderPanelEvent) => void;
 }) => {
   const [activeForm, setActiveForm] = useState(0);
@@ -116,7 +114,6 @@ const DockPanel = ({
     return event.isHandled;
   };
 
-
   // TODO: add render call backs to give user chance to set title; or use Manager delegates; TBD.
 
   const handleStacking = (e: DragEvent, source: string): boolean => {
@@ -135,14 +132,14 @@ const DockPanel = ({
     const event = new RenderFormEvent(form, form.name);
     onRenderTab && onRenderTab(event);
     return event.content;
-  }
+  };
 
   const renderPanel = (panel: CDockPanel): ReactNode => {
     panel.activeForm = activeForm;
     const event = new RenderPanelEvent(panel, panel.forms[activeForm].name);
     onRenderPanel && onRenderPanel(event);
     return event.content;
-  }
+  };
 
   const renderTabs = () => (
     <Tabs className="tabs" onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}>

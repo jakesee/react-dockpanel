@@ -10,12 +10,11 @@ const styleWrapper = {
 };
 
 const DockForm = ({ form, onRenderForm }: { form: CDockForm; onRenderForm: (e: RenderFormEvent) => void }) => {
-
   const renderForm = (form: CDockForm) => {
-    const event = new RenderFormEvent(form, <div></div>);
+    const event = new RenderFormEvent(form, (<div></div>));
     onRenderForm(event);
     return event.content;
-  }
+  };
 
   return <div style={styleWrapper}>{renderForm(form)}</div>;
 };

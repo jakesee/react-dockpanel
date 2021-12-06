@@ -292,18 +292,16 @@ export const useDockManager = (): IDockManager => {
   };
 
   const remove = (formId: string) => {
-
     setLayout(layout => {
       const { form, panel } = _findForm(layout, formId);
       if (form && panel) {
         const index = panel.forms.findIndex(f => f.id === formId);
-        panel.forms.splice(index, 1)
+        panel.forms.splice(index, 1);
       }
 
-      return { ...layout }
-
+      return { ...layout };
     });
-  }
+  };
 
   const _occupyFreeSpace = (root: CDockLayoutItem, start: CDockLayoutItem) => {
     if (start.type === DockLayoutItemType.Splitter) {
@@ -402,7 +400,7 @@ export const useDockManager = (): IDockManager => {
     createPanel,
     createSplitter,
     dock,
-    remove
+    remove,
   };
 };
 
@@ -418,14 +416,19 @@ export class DockEvent {
 }
 
 export class DockingEvent {
-  constructor(public nativeEvent: DragEvent, public formId: string, public panelId: string, public panel: HTMLDivElement | null, public isHandled: boolean = false) {}
+  constructor(
+    public nativeEvent: DragEvent,
+    public formId: string,
+    public panelId: string,
+    public panel: HTMLDivElement | null,
+    public isHandled: boolean = false
+  ) {}
 }
 
-
 export class RenderFormEvent {
-  constructor(public form: CDockForm, public content: ReactNode, public isHandled: boolean = false) { }
+  constructor(public form: CDockForm, public content: ReactNode, public isHandled: boolean = false) {}
 }
 
 export class RenderPanelEvent {
-  constructor(public panel: CDockPanel, public content: ReactNode, public isHandled: boolean = false) { }
+  constructor(public panel: CDockPanel, public content: ReactNode, public isHandled: boolean = false) {}
 }
