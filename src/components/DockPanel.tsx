@@ -147,7 +147,7 @@ const DockPanel = ({
   const onDragStart = (e: DragEvent, formId: string) => {
     setActiveForm(prev => Math.min(panel.forms.length - 2, prev));
     dragDrop.onDragStart(e, formId);
-  }
+  };
 
   const renderTabs = () => (
     <Tabs className="tabs" onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}>
