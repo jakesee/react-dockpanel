@@ -1,16 +1,8 @@
 import DockPanel from './DockPanel';
-import styled from 'styled-components';
 import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, Point, DockEvent, DockingEvent, RenderEvent, CDockForm } from './interface';
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { FormActivateEvent } from '..';
-
-const Wrapper = styled.div`
-  display: flex;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-`;
 
 const getSeparatorStyle = (vertical: boolean): React.CSSProperties => {
   return {
@@ -21,19 +13,42 @@ const getSeparatorStyle = (vertical: boolean): React.CSSProperties => {
   };
 };
 
-const Primary = styled.div`
-  position: relative;
-  flex: 1 1 auto;
+const getPrimaryStyle = (): React.CSSProperties => {
+  const style = {position: 'relative' as 'relative',
+  flex: '1 1 auto',
+  backgroundColor: 'var(--systemColor)',}
 
-  background-color: var(--systemColor);
-`;
+  return style;
+}
 
-const Secondary = styled.div`
-  position: relative;
-  flex: 0 1 auto;
+const getSecondaryStyle = (isVertical: boolean, size: number):React.CSSProperties => {
+  const style = {
+    position: "relative" as "relative",
+    flex: "0 1 auto",
+    backgroundColor: "var(--systemColor)",
+  };
+  
+  if (isVertical) {
+    return { ...style, height: `${size}%` };
+  } else {
+    return { ...style, width: `${size}%` };
+  }
+};
 
-  background-color: var(--systemColor);
-`;
+const getWrapperStyle = (isVertical: boolean): React.CSSProperties => {
+  const style = {
+    display: 'flex' as 'flex',
+    position: 'absolute' as 'absolute',
+    width: '100%',
+    height: '100%'
+  }
+
+  if (isVertical) {
+    return { ...style, flexDirection: 'column' as 'column' };
+  } else {
+    return { ...style, flexDirection: 'row' as 'row' };
+  }
+};
 
 const DockLayout = ({
   layout,
@@ -147,25 +162,9 @@ const DockLayout = ({
     return;
   }, [handleResize]);
 
-  const getSecondaryStyle = (isVertical: boolean, size: number) => {
-    if (isVertical) {
-      return { height: `${size}%` };
-    } else {
-      return { width: `${size}%` };
-    }
-  };
-
-  const getWrapperStyle = (isVertical: boolean) => {
-    if (isVertical) {
-      return { flexDirection: 'column' as 'column' };
-    } else {
-      return { flexDirection: 'row' as 'row' };
-    }
-  };
-
   const renderSplitter = () => (
     <>
-      <Primary className="dps-dock-layout-primary">
+      <div className="dock-splitter-primary" style={getPrimaryStyle()}>
         <DockLayout
           layout={splitter.primary}
           onStack={onStack}
@@ -177,7 +176,7 @@ const DockLayout = ({
           onRenderPanel={onRenderPanel}
           onFormActivate={onFormActivate}
         />
-      </Primary>
+      </div>
       <div
         className="dps-separator"
         style={getSeparatorStyle(splitter.isVertical)}
@@ -185,7 +184,7 @@ const DockLayout = ({
         onMouseDown={e => movable.onMouseDown(e.nativeEvent)}
         onTouchStart={e => movable.onTouchStart(e.nativeEvent)}
       />
-      <Secondary className="dps-dock-layout-secondary" style={getSecondaryStyle(splitter.isVertical, secondarySize)}>
+      <div className="dock-splitter-secondary" style={getSecondaryStyle(splitter.isVertical, secondarySize)}>
         <DockLayout
           layout={splitter.secondary}
           onStack={onStack}
@@ -197,12 +196,12 @@ const DockLayout = ({
           onRenderPanel={onRenderPanel}
           onFormActivate={onFormActivate}
         />
-      </Secondary>
+      </div>
     </>
   );
 
   const renderPanel = () => (
-    <Primary className="dock-layout-primary">
+    <div className="dock-splitter-primary" style={getPrimaryStyle()}>
       <DockPanel
         panel={panel}
         onStack={onStack}
@@ -214,13 +213,13 @@ const DockLayout = ({
         onRenderPanel={onRenderPanel}
         onFormActivate={onFormActivate}
       />
-    </Primary>
+    </div>
   );
 
   return (
-    <Wrapper style={getWrapperStyle(splitter.isVertical)} className={layout.id} ref={splitterRef}>
+    <div style={getWrapperStyle(splitter.isVertical)} className="dock-layout" id={layout.id} ref={splitterRef}>
       {isSplitter ? renderSplitter() : renderPanel()}
-    </Wrapper>
+    </div>
   );
 };
 
