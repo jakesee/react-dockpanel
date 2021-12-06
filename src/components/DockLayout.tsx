@@ -56,10 +56,10 @@ const DockLayout = ({
   onRenderPanel,
 }: {
   layout: CDockLayoutItem;
-  onStack: (e: DockEvent) => boolean;
-  onSplit: (e: DockEvent) => boolean;
-  onStacking: (e: DockingEvent) => boolean;
-  onSplitting: (e: DockingEvent) => boolean;
+  onStack: (e: DockEvent) => void;
+  onSplit: (e: DockEvent) => void;
+  onStacking: (e: DockingEvent) => void;
+  onSplitting: (e: DockingEvent) => void;
   onRenderForm: (e: RenderFormEvent) => void;
   onRenderTab?: (e: RenderFormEvent) => void;
   onRenderPanel?: (e: RenderPanelEvent) => void;

@@ -42,7 +42,7 @@ const App = () => {
         }}>
           <AssignmentIcon fontSize="small" />
           <div>Properties</div>
-          <CloseIcon fontSize="small" style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => manager.remove(activeForm.id)} />
+          <CloseIcon fontSize="small" style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => console.log(JSON.parse(JSON.stringify(manager.layout)))} />
         </div>
         break;
       default:
@@ -52,7 +52,7 @@ const App = () => {
 
   const onRenderTab = (e: RenderFormEvent) => {
     switch (e.form.name) {
-      case 'Properties':
+      case 'Propertiess':
         e.content = <div style={{
           display: 'flex',
           alignItems: 'center',

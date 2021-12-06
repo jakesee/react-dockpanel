@@ -91,14 +91,16 @@ const DockPanel = ({
 }) => {
   const [activeForm, setActiveForm] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
-
   const dragDrop = new DragDropable();
 
   const handleStack = (e: DragEvent, source: string): boolean => {
     const event = new DockEvent(e, source, panel.id, panelRef.current, DockPosition.Center);
+    console.log('handleStack before', panel.forms.length);
     onStack(event);
+    console.log('handleStack after', panel.forms.length);
+    console.log(event.isHandled);
     if (!event.isHandled) {
-      setActiveForm(prev => Math.min(panel.forms.length - 1, prev));
+      setActiveForm(panel.forms.length - 1);
       event.isHandled = true;
     }
     return event.isHandled;
@@ -106,15 +108,16 @@ const DockPanel = ({
 
   const handleSplit = (e: DragEvent, source: string): boolean => {
     const event = new DockEvent(e, source, panel.id, panelRef.current, DockPosition.Unknown);
+    console.log('handleSplit before', panel.forms.length);
     onSplit(event);
+    console.log('handleSplit after', panel.forms.length);
+    console.log(event.isHandled);
     if (!event.isHandled) {
-      setActiveForm(prev => Math.min(panel.forms.length - 1, prev));
+      setActiveForm(panel.forms.length - 1);
       event.isHandled = true;
     }
     return event.isHandled;
   };
-
-  // TODO: add render call backs to give user chance to set title; or use Manager delegates; TBD.
 
   const handleStacking = (e: DragEvent, source: string): boolean => {
     const event = new DockingEvent(e, source, panel.id, panelRef.current);
@@ -141,6 +144,11 @@ const DockPanel = ({
     return event.content;
   };
 
+  const onDragStart = (e: DragEvent, formId: string) => {
+    setActiveForm(prev => Math.min(panel.forms.length - 2, prev));
+    dragDrop.onDragStart(e, formId);
+  }
+
   const renderTabs = () => (
     <Tabs className="tabs" onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)} onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}>
       {panel.forms.map((f, i) => (
@@ -149,7 +157,7 @@ const DockPanel = ({
           className={activeForm === i ? 'tab active' : 'tab'}
           onClick={() => setActiveForm(i)}
           draggable
-          onDragStart={e => dragDrop.onDragStart(e.nativeEvent, f.id)}
+          onDragStart={e => onDragStart(e.nativeEvent, f.id)}
         >
           {renderTab(f)}
         </div>
@@ -161,7 +169,7 @@ const DockPanel = ({
     <Wrapper id={panel.id} ref={panelRef} className="dock-panel">
       <Title
         draggable
-        onDragStart={e => dragDrop.onDragStart(e.nativeEvent, panel.forms[activeForm].id)}
+        onDragStart={e => onDragStart(e.nativeEvent, panel.forms[activeForm].id)}
         onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)}
         onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}
       >

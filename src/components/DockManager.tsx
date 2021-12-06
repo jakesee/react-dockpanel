@@ -34,33 +34,30 @@ export const DockManager = ({
   manager: IDockManager;
   onRenderForm: (e: RenderFormEvent) => void;
   theme?: Theme;
-  onDock?: (e: DockEvent) => boolean;
+  onDock?: (e: DockEvent) => void;
   onRenderTab?: (e: RenderFormEvent) => void;
   onRenderPanel?: (e: RenderPanelEvent) => void;
 }) => {
   const blueprintRef = useRef<HTMLDivElement>(null);
 
-  const handleStack = (e: DockEvent): boolean => {
+  const handleStack = (e: DockEvent) => {
     e.position = DockPosition.Center;
-    return handleDock(e);
+    handleDock(e);
   };
 
   const handleSplit = (e: DockEvent) => {
     // check which side the mouse is close to
     if (e.panel) {
       e.position = calcDockPosition(e.nativeEvent, e.panel);
-      return handleDock(e);
+      handleDock(e);
     }
-    return false;
   };
 
   const handleDock = (e: DockEvent) => {
-    const handled = onDock && onDock(e);
-    if (!handled) manager.dock(e.formId, e.panelId, e.position);
+    onDock && onDock(e);
+    if (!e.isHandled) manager.dock(e.formId, e.panelId, e.position);
     const blueprint = blueprintRef.current;
     if (blueprint) hideBlueprint(blueprint);
-
-    return true;
   };
 
   const calcDockPosition = (e: DragEvent, destination: HTMLDivElement): DockPosition => {
@@ -95,8 +92,6 @@ export const DockManager = ({
       const rect = e.panel.getBoundingClientRect();
       showBlueprint(blueprint, rect, DockPosition.Center);
     }
-
-    return true;
   };
 
   const handleSplitting = (e: DockingEvent) => {
@@ -106,8 +101,6 @@ export const DockManager = ({
       const rect = e.panel.getBoundingClientRect();
       showBlueprint(blueprint, rect, position);
     }
-
-    return true;
   };
 
   const showBlueprint = (blueprint: HTMLDivElement, rect: DOMRect, position: DockPosition) => {
