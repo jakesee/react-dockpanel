@@ -1,7 +1,7 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useRef } from 'react';
 import DockForm from './DockForm';
 import styled from 'styled-components';
-import { CDockForm, CDockPanel, DockingEvent, DragDropable, DockEvent, DockPosition, RenderFormEvent, RenderPanelEvent } from './hooks';
+import { CDockForm, CDockPanel, DockingEvent, DragDropable, DockEvent, DockPosition, RenderEvent, FormActivateEvent } from './interface';
 import React from 'react';
 
 const NoContent = styled.div`
@@ -79,44 +79,31 @@ const DockPanel = ({
   onRenderForm,
   onRenderTab,
   onRenderPanel,
+  onFormActivate,
 }: {
   panel: CDockPanel;
   onStack: (e: DockEvent) => void;
   onSplit: (e: DockEvent) => void;
   onStacking: (e: DockingEvent) => void;
   onSplitting: (e: DockingEvent) => void;
-  onRenderForm: (e: RenderFormEvent) => void;
-  onRenderTab?: (e: RenderFormEvent) => void;
-  onRenderPanel?: (e: RenderPanelEvent) => void;
+  onFormActivate: (e: FormActivateEvent) => void;
+  onRenderForm?: (e: RenderEvent<CDockForm>) => void;
+  onRenderTab?: (e: RenderEvent<CDockForm>) => void;
+  onRenderPanel?: (e: RenderEvent<CDockPanel>) => void;
 }) => {
-  const [activeForm, setActiveForm] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const dragDrop = new DragDropable();
 
   const handleStack = (e: DragEvent, source: string): boolean => {
     const event = new DockEvent(e, source, panel.id, panelRef.current, DockPosition.Center);
-    console.log('handleStack before', panel.forms.length);
     onStack(event);
-    console.log('handleStack after', panel.forms.length);
-    console.log(event.isHandled);
-    if (!event.isHandled) {
-      setActiveForm(panel.forms.length - 1);
-      event.isHandled = true;
-    }
-    return event.isHandled;
+    return true;
   };
 
   const handleSplit = (e: DragEvent, source: string): boolean => {
     const event = new DockEvent(e, source, panel.id, panelRef.current, DockPosition.Unknown);
-    console.log('handleSplit before', panel.forms.length);
     onSplit(event);
-    console.log('handleSplit after', panel.forms.length);
-    console.log(event.isHandled);
-    if (!event.isHandled) {
-      setActiveForm(panel.forms.length - 1);
-      event.isHandled = true;
-    }
-    return event.isHandled;
+    return true;
   };
 
   const handleStacking = (e: DragEvent, source: string): boolean => {
@@ -132,21 +119,21 @@ const DockPanel = ({
   };
 
   const renderTab = (form: CDockForm): ReactNode => {
-    const event = new RenderFormEvent(form, form.name);
+    const event = new RenderEvent<CDockForm>(form, form.name);
     onRenderTab && onRenderTab(event);
     return event.content;
   };
 
   const renderPanel = (panel: CDockPanel): ReactNode => {
-    panel.activeForm = activeForm;
-    const event = new RenderPanelEvent(panel, panel.forms[activeForm].name);
+    const event = new RenderEvent<CDockPanel>(panel, panel.forms[panel.activeIndex].name);
     onRenderPanel && onRenderPanel(event);
     return event.content;
   };
 
-  const onDragStart = (e: DragEvent, formId: string) => {
-    setActiveForm(prev => Math.min(panel.forms.length - 2, prev));
-    dragDrop.onDragStart(e, formId);
+  const handleFormActivate = (index: number) => {
+    panel.activeIndex = index;
+    const event = new FormActivateEvent(panel);
+    onFormActivate(event);
   };
 
   const renderTabs = () => (
@@ -154,10 +141,10 @@ const DockPanel = ({
       {panel.forms.map((f, i) => (
         <div
           key={f.id}
-          className={activeForm === i ? 'tab active' : 'tab'}
-          onClick={() => setActiveForm(i)}
+          className={panel.activeIndex === i ? 'tab active' : 'tab'}
+          onClick={() => handleFormActivate(i)}
           draggable
-          onDragStart={e => onDragStart(e.nativeEvent, f.id)}
+          onDragStart={e => dragDrop.onDragStart(e.nativeEvent, f.id)}
         >
           {renderTab(f)}
         </div>
@@ -169,7 +156,7 @@ const DockPanel = ({
     <Wrapper id={panel.id} ref={panelRef} className="dock-panel">
       <Title
         draggable
-        onDragStart={e => onDragStart(e.nativeEvent, panel.forms[activeForm].id)}
+        onDragStart={e => dragDrop.onDragStart(e.nativeEvent, panel.forms[panel.activeIndex].id)}
         onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleStacking)}
         onDrop={e => dragDrop.onDrop(e.nativeEvent, handleStack)}
       >
@@ -180,7 +167,7 @@ const DockPanel = ({
         onDragOver={e => dragDrop.onDragOver(e.nativeEvent, handleSplitting)}
         onDrop={e => dragDrop.onDrop(e.nativeEvent, handleSplit)}
       >
-        <DockForm form={panel.forms[activeForm]} onRenderForm={onRenderForm} />
+        <DockForm form={panel.forms[panel.activeIndex]} onRenderForm={onRenderForm} />
       </Content>
       {panel.forms.length > 1 ? renderTabs() : ''}
     </Wrapper>

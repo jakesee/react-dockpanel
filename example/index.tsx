@@ -1,8 +1,7 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { DockManager, useDockManager } from './..';
-import { RenderFormEvent, RenderPanelEvent } from '../dist/components/hooks';
+import { DockManager, useDockManager, RenderEvent, CDockPanel, CDockForm } from './..';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CloseIcon from '@mui/icons-material/Close';
 import './index.css';
@@ -29,8 +28,8 @@ const App = () => {
     }
   }, []);
 
-  const onRenderPanel = (e: RenderPanelEvent) => {
-    const activeForm = e.panel.forms[e.panel.activeForm];
+  const onRenderPanel = (e: RenderEvent<CDockPanel>) => {
+    const activeForm = e.item.forms[e.item.activeIndex];
     switch (activeForm.name) {
       case 'Properties':
         e.content = <div style={{
@@ -50,8 +49,8 @@ const App = () => {
     }
   }
 
-  const onRenderTab = (e: RenderFormEvent) => {
-    switch (e.form.name) {
+  const onRenderTab = (e: RenderEvent<CDockForm>) => {
+    switch (e.item.name) {
       case 'Propertiess':
         e.content = <div style={{
           display: 'flex',

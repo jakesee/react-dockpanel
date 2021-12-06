@@ -1,19 +1,9 @@
 import DockPanel from './DockPanel';
 import styled from 'styled-components';
-import {
-  CDockLayoutItem,
-  DockLayoutItemType,
-  CDockPanel,
-  CDockSplitter,
-  Movable,
-  Point,
-  DockEvent,
-  DockingEvent,
-  RenderFormEvent,
-  RenderPanelEvent,
-} from './hooks';
+import { CDockLayoutItem, DockLayoutItemType, CDockPanel, CDockSplitter, Movable, Point, DockEvent, DockingEvent, RenderEvent, CDockForm } from './interface';
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
+import { FormActivateEvent } from '..';
 
 const Wrapper = styled.div`
   display: flex;
@@ -54,15 +44,17 @@ const DockLayout = ({
   onRenderForm,
   onRenderTab,
   onRenderPanel,
+  onFormActivate,
 }: {
   layout: CDockLayoutItem;
   onStack: (e: DockEvent) => void;
   onSplit: (e: DockEvent) => void;
   onStacking: (e: DockingEvent) => void;
   onSplitting: (e: DockingEvent) => void;
-  onRenderForm: (e: RenderFormEvent) => void;
-  onRenderTab?: (e: RenderFormEvent) => void;
-  onRenderPanel?: (e: RenderPanelEvent) => void;
+  onRenderForm: (e: RenderEvent<CDockForm>) => void;
+  onRenderTab?: (e: RenderEvent<CDockForm>) => void;
+  onRenderPanel?: (e: RenderEvent<CDockPanel>) => void;
+  onFormActivate: (e: FormActivateEvent) => void;
 }) => {
   const isSplitter = layout.type === DockLayoutItemType.Splitter;
   const splitter = layout as CDockSplitter;
@@ -183,6 +175,7 @@ const DockLayout = ({
           onRenderForm={onRenderForm}
           onRenderTab={onRenderTab}
           onRenderPanel={onRenderPanel}
+          onFormActivate={onFormActivate}
         />
       </Primary>
       <div
@@ -202,6 +195,7 @@ const DockLayout = ({
           onRenderForm={onRenderForm}
           onRenderTab={onRenderTab}
           onRenderPanel={onRenderPanel}
+          onFormActivate={onFormActivate}
         />
       </Secondary>
     </>
@@ -218,6 +212,7 @@ const DockLayout = ({
         onRenderForm={onRenderForm}
         onRenderTab={onRenderTab}
         onRenderPanel={onRenderPanel}
+        onFormActivate={onFormActivate}
       />
     </Primary>
   );

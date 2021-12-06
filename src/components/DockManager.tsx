@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
-import { DockingEvent, IDockManager, DockEvent, DockPosition, Point, RenderFormEvent, RenderPanelEvent } from './hooks';
+import { DockingEvent, IDockManager, DockEvent, DockPosition, Point, RenderEvent, CDockForm } from './interface';
 import DockLayout from './DockLayout';
+import { CDockPanel, FormActivateEvent } from '..';
 
 export interface Theme {
   backgroundColor1?: string;
@@ -29,14 +30,16 @@ export const DockManager = ({
   onRenderForm,
   onRenderTab,
   onRenderPanel,
+  onFormActivate,
   theme,
 }: {
   manager: IDockManager;
-  onRenderForm: (e: RenderFormEvent) => void;
+  onRenderForm: (e: RenderEvent<CDockForm>) => void;
   theme?: Theme;
   onDock?: (e: DockEvent) => void;
-  onRenderTab?: (e: RenderFormEvent) => void;
-  onRenderPanel?: (e: RenderPanelEvent) => void;
+  onRenderTab?: (e: RenderEvent<CDockForm>) => void;
+  onRenderPanel?: (e: RenderEvent<CDockPanel>) => void;
+  onFormActivate?: (e: FormActivateEvent) => void;
 }) => {
   const blueprintRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +151,13 @@ export const DockManager = ({
     blueprint && (blueprint.style.display = 'none');
   };
 
+  const handleFormActivate = (e: FormActivateEvent) => {
+    onFormActivate && onFormActivate(e);
+    if (!e.isHandled) {
+      manager.activate(e.panel.id, e.panel.activeIndex);
+    }
+  };
+
   return (
     <div style={styleWrapper(theme)} className="dock-manager">
       <DockLayout
@@ -159,6 +169,7 @@ export const DockManager = ({
         onRenderForm={onRenderForm}
         onRenderTab={onRenderTab}
         onRenderPanel={onRenderPanel}
+        onFormActivate={handleFormActivate}
       />
       <div
         ref={blueprintRef}

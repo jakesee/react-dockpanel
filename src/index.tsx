@@ -1,12 +1,13 @@
 export {
-  useDockManager,
   CDockLayoutItem,
   CDockForm,
   CDockSplitter,
   CDockPanel,
   DockEvent,
   DockPosition,
-  RenderFormEvent,
-  RenderPanelEvent,
-} from './components/hooks';
+  RenderEvent,
+  FormActivateEvent,
+  IDockManager,
+} from './components/interface';
 export { DockManager } from './components/DockManager';
+export { useDockManager } from './components/hooks';
